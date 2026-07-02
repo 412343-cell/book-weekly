@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图书私域数据周报</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.header h1 {
+  font-size: 28px;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+.header p {
+  font-size: 14px;
+  color: #888;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 800px;
+  width: 100%;
+}
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  border: 1px solid #eee;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.card .icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+.card h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: #1a1a2e;
+}
+.card .desc {
+  font-size: 13px;
+  color: #999;
+  line-height: 1.6;
+}
+.card .tag {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+.card .update {
+  font-size: 11px;
+  color: #bbb;
+  margin-top: 8px;
+}
+.coming-soon {
+  opacity: 0.5;
+  pointer-events: none;
+}
+footer {
+  margin-top: 60px;
+  font-size: 12px;
+  color: #bbb;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 图书私域数据周报</h1>
+  <p>各合作渠道专属数据看板</p>
+</div>
+
+<div class="card-grid">
+  <a href="书行周报_demo.html" class="card">
+    <div class="icon">📚</div>
+    <h2>书行</h2>
+    <div class="desc">趣味学英语 · 看图写话<br>加微 → leads → 结课 → 转正</div>
+    <span class="tag">2个品</span>
+    <div class="update">更新于 2026.06.30</div>
+  </a>
+
+  <a href="当当网周报.html" class="card">
+    <div class="icon">📦</div>
+    <h2>当当网</h2>
+    <div class="desc">阅读写作双提升课<br>书课包合作 · 全0元课</div>
+    <span class="tag">1个品</span>
+    <div class="update">更新于 2026.06.30</div>
+  </a>
+
+  <div class="card coming-soon">
+    <div class="icon">🐻</div>
+    <h2>笨笨熊</h2>
+    <div class="desc">三味 · 公版 · 蓝鲸<br>即将上线</div>
+    <span class="tag">待接入</span>
+  </div>
+
+  <div class="card coming-soon">
+    <div class="icon">📝</div>
+    <h2>汉知简</h2>
+    <div class="desc">学霸笔记下 · 同步作文<br>即将上线</div>
+    <span class="tag">待接入</span>
+  </div>
+</div>
+
+<footer>
+  图书私域运营数据 · 仅供内部与合作方查看
+</footer>
+</body>
+</html>

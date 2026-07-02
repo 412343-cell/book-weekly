@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>当当网渠道周报</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f1f5f9;color:#1e293b;padding:24px;line-height:1.6;}
+  .container{max-width:1060px;margin:0 auto;}
+
+  /* === 对外截图区 === */
+  .ext-section{background:#fff;border-radius:12px;padding:28px 32px;border:2px solid #3b82f6;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .ext-title{font-size:20px;font-weight:700;color:#1e3a5f;margin-bottom:4px;}
+  .ext-subtitle{font-size:13px;color:#64748b;margin-bottom:20px;}
+  .ext-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:4px;}
+  .ext-table th{background:#eff6ff;color:#1e40af;font-weight:600;padding:10px 12px;text-align:center;border-bottom:2px solid #bfdbfe;white-space:nowrap;}
+  .ext-table th.this-week{background:#fee2e2;color:#991b1b;border-bottom-color:#fca5a5;}
+  .ext-table th.last-week{background:#f1f5f9;color:#475569;border-bottom-color:#cbd5e1;}
+  .ext-table th:first-child,.ext-table td:first-child{text-align:left;}
+  .ext-table td{padding:9px 12px;text-align:center;border-bottom:1px solid #e2e8f0;}
+  .ext-table tr:last-child td{border-bottom:none;}
+  .ext-table .num{font-variant-numeric:tabular-nums;font-weight:500;}
+  .ext-table .up{color:#dc2626;font-weight:600;}
+  .ext-table .down{color:#16a34a;font-weight:600;}
+  .ext-table .flat{color:#94a3b8;}
+  .ext-table .rate-row td{background:#f8fafc;font-weight:600;}
+  .ext-table .rate-row td:first-child{color:#475569;}
+  .ext-table .cumulative{color:#1e293b;font-weight:600;}
+  .table-label{font-size:15px;font-weight:600;color:#334155;margin-bottom:8px;margin-top:4px;display:flex;align-items:center;gap:6px;}
+  .table-label::before{content:"";display:inline-block;width:3px;height:16px;background:#3b82f6;border-radius:2px;}
+
+  /* === 分隔线 === */
+  .divider{margin:32px 0;text-align:center;}
+  .divider span{display:inline-block;background:#cbd5e1;color:#64748b;font-size:12px;padding:4px 16px;border-radius:20px;letter-spacing:1px;}
+
+  /* === 内部详析区 === */
+  table.int-table{width:100%;border-collapse:collapse;font-size:13px;}
+  table.int-table th{background:#f8fafc;color:#475569;font-weight:600;padding:8px 10px;text-align:center;border-bottom:1px solid #e2e8f0;}
+  table.int-table th:first-child,table.int-table td:first-child{text-align:left;}
+  table.int-table td{padding:7px 10px;text-align:center;border-bottom:1px solid #f1f5f9;}
+  table.int-table .num{font-variant-numeric:tabular-nums;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500;}
+  .badge-blue{background:#dbeafe;color:#1e40af;}
+  .badge-amber{background:#fef3c7;color:#92400e;}
+  .badge-green{background:#dcfce7;color:#166534;}
+  .badge-purple{background:#f3e8ff;color:#7e22ce;}
+  .badge-gray{background:#f1f5f9;color:#64748b;}
+  .pin-section{margin-bottom:24px;}
+  .pin-bar{font-size:15px;font-weight:700;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:8px;}
+  .pin-bar.dd{background:linear-gradient(135deg,#fce7f3,#fdf2f8);color:#9d174d;}
+  .pin-bar .pin-total{font-size:12px;font-weight:400;opacity:0.7;margin-left:auto;}
+  .pin-body{background:#fff;border-radius:0 0 10px 10px;padding:16px 20px;box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+  .triple-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:14px;}
+  .triple-grid > div{background:#f8fafc;border-radius:8px;padding:12px 14px;}
+  .mini-label{font-size:12px;color:#64748b;font-weight:600;margin-bottom:6px;}
+  .chart-wrap-combo{position:relative;height:200px;margin-bottom:16px;}
+  .wd-zz{color:#7c3aed;font-weight:700;}
+  .wd-zz-sub{color:#a78bfa;font-weight:600;}
+
+  /* === 明细表着色 === */
+  .wd-rate{color:#15803d;font-weight:600;}
+  .wd-rate-header{color:#15803d;}
+  .wd-rate-dim{color:#94a3b8;}
+  .wd-rate-outlier{color:#f59e0b;font-weight:600;}
+  .wd-course-header{color:#475569;border-bottom:2px solid #e2e8f0;}
+  .wd-source-header{color:#475569;border-bottom:2px solid #e2e8f0;}
+  .wd-jw-header{color:#1e40af;}
+
+  /* === 月明细表 === */
+  .month-table-wrap{margin-top:18px;}
+  .month-table-wrap .mini-label{margin-bottom:6px;}
+
+  /* === 三卡片累计 === */
+  .three-cards{display:flex;gap:14px;margin-top:14px;margin-bottom:20px;flex-wrap:wrap;}
+  .three-cards .card{flex:1;min-width:260px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:8px;padding:14px 16px;border:1px solid #e2e8f0;}
+  .three-cards .card-title{font-size:13px;font-weight:700;color:#475569;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .three-cards .card-title .badge{margin-left:auto;}
+  .three-cards .card-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:3px 0;border-bottom:1px dotted #e2e8f0;}
+  .three-cards .card-row:last-child{border-bottom:none;}
+  .three-cards .card-row .cl{color:#64748b;}
+  .three-cards .card-row .cr{font-weight:600;font-variant-numeric:tabular-nums;}
+  .three-cards .card-note{font-size:11px;color:#94a3b8;margin-top:6px;line-height:1.5;}
+
+  /* 表头分组 */
+  .int-table thead.grouped th{background:#f8fafc;color:#475569;border-bottom:2px solid #e2e8f0;}
+  .int-table thead.grouped th.group-left{border-left:2px solid #cbd5e1;}
+  .int-table thead.grouped th.group-right{border-right:2px solid #cbd5e1;}
+  .int-table tbody td.group-left{border-left:2px solid #cbd5e1;}
+  .int-table tbody td.group-right{border-right:2px solid #cbd5e1;}
+  .int-table tbody td.wd-zz{color:#7c3aed;font-weight:700;}
+  .int-table .summary-row td{background:#f1f5f9;font-weight:600;color:#334155;}
+  .int-table .summary-row td.wd-zz{color:#7c3aed;font-weight:700;}
+
+  .resource-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:900px){.resource-grid{grid-template-columns:1fr;}.three-cards{flex-direction:column;}}
+
+  .footnote{font-size:11px;color:#94a3b8;margin-top:6px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ==================== 对外截图区 ==================== -->
+  <div class="ext-section">
+    <div class="ext-title">当当网渠道数据周报</div>
+    <div class="ext-subtitle" id="extSubtitle"></div>
+
+    <!-- 仅一张整体汇总表（当当只有一本书，不分品） -->
+    <div class="table-label">整体汇总</div>
+    <table class="ext-table" id="extSummaryTable"><thead><tr><th>指标</th><th class="this-week">本周</th><th class="last-week">上周</th><th>环比</th><th>累计</th></tr></thead><tbody></tbody></table>
+    <div class="footnote" id="footnoteSummary"></div>
+  </div>
+
+  <!-- ==================== 分隔线 ==================== -->
+  <div class="divider"><span>以下为内部详析</span></div>
+
+  <!-- ==================== 内部详析区 ==================== -->
+  <div class="pin-section">
+    <div class="pin-bar dd">📚 <span id="productName"></span><span class="pin-total" id="pinTotal"></span></div>
+    <div class="pin-body">
+
+      <!-- 近4周周明细 -->
+      <div class="mini-label">📅 近4周周明细（按价位拆分）</div>
+      <table class="int-table" style="margin-bottom:14px;">
+        <thead class="grouped"><tr><th>周</th><th class="num wd-jw-header">加微</th><th class="num wd-course-header group-left">0元leads</th><th class="num wd-rate-header group-right">0元率</th><th class="num wd-course-header group-left">低价leads</th><th class="num wd-rate-header">低价率</th><th class="num wd-source-header group-left">热点</th><th class="num wd-source-header group-right">索粉</th><th class="num wd-zz">转正</th></tr></thead>
+        <tbody id="weekTableBody"></tbody>
+      </table>
+      <div class="footnote" id="footnoteWeek"></div>
+
+      <div class="chart-wrap-combo"><canvas id="ddComboChart"></canvas></div>
+
+      <!-- 月度明细 -->
+      <div class="month-table-wrap">
+        <div class="mini-label">📆 月度明细（按价位拆分）</div>
+        <table class="int-table">
+          <thead class="grouped"><tr><th>月份</th><th class="num">加微</th><th class="num wd-course-header group-left">0元leads</th><th class="num wd-rate-header">0元率</th><th class="num wd-zz group-right">0元转正</th><th class="num wd-course-header group-left">低价leads</th><th class="num wd-rate-header">低价率</th><th class="num wd-zz group-right">低价转正</th><th class="num wd-course-header group-left">双科leads</th><th class="num wd-zz">双科转正</th></tr></thead>
+          <tbody id="monthTableBody"></tbody>
+        </table>
+      </div>
+      <div class="footnote" id="footnoteMonth"></div>
+
+      <!-- 累计结构：三张独立卡片 -->
+      <div class="three-cards">
+        <!-- 卡1：加微漏斗 -->
+        <div class="card">
+          <div class="card-title">📚 加微 → leads 漏斗 <span class="badge badge-blue">加微 <span id="cardFunnelJw"></span>人</span></div>
+          <div id="cardFunnelRows"></div>
+          <div class="card-note" id="cardFunnelNote"></div>
+        </div>
+        <!-- 卡2：热点拆解 -->
+        <div class="card">
+          <div class="card-title">🔥 热点析出 <span class="badge badge-amber" id="cardHotBadge"></span></div>
+          <div id="cardHotRows"></div>
+          <div class="card-note">转正合计 <b class="wd-zz" id="cardHotZz"></b> 人</div>
+        </div>
+        <!-- 卡3：索粉 -->
+        <div class="card">
+          <div class="card-title">🔍 索粉析出 <span class="badge badge-purple" id="cardSfBadge"></span></div>
+          <div id="cardSfRows"></div>
+          <div class="card-note" id="cardSfNote"></div>
+        </div>
+      </div>
+
+      <div class="triple-grid">
+        <!-- 课型 -->
+        <div>
+          <div class="mini-label">课型拆分</div>
+          <table class="int-table"><thead><tr><th>课型</th><th class="num">人次</th><th class="num">占比</th><th class="num wd-zz">转正</th></tr></thead><tbody id="courseTypeBody"></tbody></table>
+        </div>
+        <!-- 学科 -->
+        <div>
+          <div class="mini-label">学科分布</div>
+          <table class="int-table"><thead><tr><th>学科</th><th class="num">人次</th><th class="num">占比</th><th class="num wd-zz">转正</th></tr></thead><tbody id="subjectBody"></tbody></table>
+        </div>
+        <!-- 来源 -->
+        <div>
+          <div class="mini-label">来源拆分</div>
+          <table class="int-table"><thead><tr><th>来源</th><th class="num">人次</th><th class="num">占比</th><th class="num wd-zz">转正</th></tr></thead><tbody id="sourceBody"></tbody></table>
+        </div>
+      </div>
+
+      <div class="mini-label">TOP 热点来源</div>
+      <table class="int-table"><thead><tr><th>#</th><th>热点名称</th><th class="num">leads</th><th class="num wd-zz">转正</th></tr></thead><tbody id="hotSourceBody"></tbody></table>
+
+      <div class="mini-label" style="margin-top:14px;">TOP 索粉来源</div>
+      <table class="int-table"><thead><tr><th>#</th><th>索粉来源</th><th class="num">leads</th><th class="num wd-zz">转正</th></tr></thead><tbody id="sufenSourceBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- 活码资源位分布 -->
+  <div class="pin-section">
+    <div class="pin-bar" style="background:#eef2ff;color:#4338ca;">📊 活码资源位分布<span class="pin-total" style="background:#dbeafe;color:#4338ca;">用户从哪里扫码进来的</span></div>
+    <div class="pin-body">
+      <div class="resource-grid">
+        <div>
+          <div class="mini-label" id="resourceLabel"></div>
+          <table class="int-table"><thead><tr><th>资源位</th><th class="num">加微人数</th><th class="num">占比</th></tr></thead><tbody id="resourceBody"></tbody></table>
+        </div>
+        <div>
+          <div class="mini-label">🔗 活码名称</div>
+          <table class="int-table"><thead><tr><th>活码</th><th class="num">加微</th><th class="num">占比</th></tr></thead><tbody id="qrNameBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="dangdang_data.js"></script>
+<script>
+// ============ 渲染引擎 ============
+const D = DD_DATA;
+
+function chgCell(val, dir) { return `<td class="${dir}">${val}</td>`; }
+function numCell(v) { return `<td class="num">${v}</td>`; }
+function zzCell(v) { return v > 0 ? `<td class="num wd-zz">${v}</td>` : `<td class="num">${v}</td>`; }
+
+// ----- 对外字幕 -----
+document.getElementById('extSubtitle').textContent =
+  `本周 ${D.meta.thisWeekLabel} ｜ 上周 ${D.meta.lastWeekLabel} ｜ 数据截止 ${D.meta.dataDate} ｜ ${D.meta.productName}`;
+
+// ----- 对外汇总表（仅一张整体表）-----
+(function() {
+  const s = D.summary;
+  const tw = s.thisWeek, lw = s.lastWeek, cu = s.cumulative, ch = s.changes;
+  const rows = [
+    ['加微数', tw.jw, lw.jw, ch.jw, ch.jwDir, cu.jw],
+    ['leads 领课人次', tw.leads, lw.leads, ch.leads, ch.leadsDir, cu.leads],
+    ['结课人次', tw.jk, lw.jk, ch.jk, ch.jkDir, cu.jk],
+    ['转正人次', tw.zz, lw.zz, ch.zz, ch.zzDir, cu.zz],
+  ];
+  let html = rows.map(r =>
+    `<tr><td>${r[0]}</td>${numCell(r[1])}${numCell(r[2])}${chgCell(r[3],r[4])}<td class="num cumulative">${r[5]}</td></tr>`
+  ).join('');
+  html += `<tr class="rate-row"><td>领课率</td>${numCell(tw.lkRate)}${numCell(lw.lkRate)}${chgCell(ch.lkRate,ch.lkRateDir)}<td class="cumulative">${cu.lkRate}</td></tr>`;
+  html += `<tr class="rate-row"><td>结课转正率</td>${numCell(tw.jkzzRate)}${numCell(lw.jkzzRate)}${chgCell(ch.jkzzRate,ch.jkzzRateDir)}<td class="cumulative">${cu.jkzzRate}</td></tr>`;
+  document.getElementById('extSummaryTable').querySelector('tbody').innerHTML = html;
+})();
+
+document.getElementById('footnoteSummary').textContent = '* ' + D.footnotes.summary;
+
+// ----- 品名+累计 -----
+document.getElementById('productName').textContent = D.meta.productName;
+document.getElementById('pinTotal').textContent = `累计 ${D.summary.cumulative.leads} leads`;
+
+// ----- 近4周周明细表 -----
+(function() {
+  const ws = D.weeks, wt = D.weeksTotal;
+  let html = ws.map(w => {
+    const lyCls = w.ly_outlier ? 'wd-rate-outlier' : 'wd-rate';
+    return `<tr>
+      <td>${w.label}</td>${numCell(w.jw)}
+      <td class="num group-left">${w.ly_leads}</td><td class="num ${lyCls} group-right">${w.ly_rate}</td>
+      <td class="num group-left">${w.dj_leads}</td><td class="num wd-rate-dim">${w.dj_rate}</td>
+      <td class="num group-left">${w.hot}</td><td class="num group-right">${w.sufen}</td>
+      ${zzCell(w.zz)}</tr>`;
+  }).join('');
+  html += `<tr class="summary-row"><td><strong>4周合计</strong></td>
+    <td class="num"><strong>${wt.jw}</strong></td>
+    <td class="num group-left"><strong>${wt.ly_leads}</strong></td><td class="num wd-rate group-right"><strong>${wt.ly_rate}</strong></td>
+    <td class="num group-left"><strong>${wt.dj_leads}</strong></td><td class="num wd-rate-dim"><strong>${wt.dj_rate}</strong></td>
+    <td class="num group-left"><strong>${wt.hot}</strong></td><td class="num group-right"><strong>${wt.sufen}</strong></td>
+    <td class="num wd-zz"><strong>${wt.zz}</strong></td></tr>`;
+  document.getElementById('weekTableBody').innerHTML = html;
+})();
+document.getElementById('footnoteWeek').textContent = '* ' + D.footnotes.weekly;
+
+// ----- 月明细表 -----
+(function() {
+  let html = D.monthly.map(m => {
+    const lyCls = m.ly_rate === '--' ? 'wd-rate-dim' : (parseFloat(m.ly_rate) > 100 ? 'wd-rate-outlier' : 'wd-rate');
+    return `<tr>
+      <td>${m.month}</td>${numCell(m.jw)}
+      <td class="num group-left">${m.ly_leads}</td><td class="num ${lyCls}">${m.ly_rate}</td>
+      <td class="num group-right">${m.ly_zz > 0 ? '<span class="wd-zz">'+m.ly_zz+'</span>' : m.ly_zz}</td>
+      <td class="num group-left">${m.dj_leads}</td><td class="num wd-rate-dim">${m.dj_rate}</td>
+      <td class="num group-right">${m.dj_zz}</td>
+      <td class="num group-left">${m.sk_leads}</td>${zzCell(m.sk_zz)}</tr>`;
+  }).join('');
+  document.getElementById('monthTableBody').innerHTML = html;
+})();
+document.getElementById('footnoteMonth').textContent = '* ' + D.footnotes.monthly;
+
+// ----- 三卡片累计 -----
+(function() {
+  const cards = D.cumulativeCards;
+  const cutoff = D.meta.dataDate;
+
+  // 卡1：加微漏斗
+  document.getElementById('cardFunnelJw').textContent = cards.funnel.jw;
+  document.getElementById('cardFunnelRows').innerHTML = cards.funnel.items.map(it => {
+    const zzStr = it.zzRate !== undefined
+      ? `<span class="wd-zz-sub">转正 ${it.zz}人</span> (${it.zzRate})`
+      : `<span class="wd-zz-sub">转正 ${it.zz}人</span>`;
+    return `<div class="card-row">
+      <span class="cl">${it.label}</span>
+      <span class="cr">${it.leads}人 <span style="font-weight:400;color:#94a3b8;font-size:11px;">(${it.rate})</span> ${zzStr}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('cardFunnelNote').textContent = '* ' + cards.funnel.note;
+
+  // 卡2：热点
+  const h = cards.hot;
+  document.getElementById('cardHotBadge').textContent = `${h.total}人 (${h.totalPct})`;
+  document.getElementById('cardHotRows').innerHTML = h.items.filter(it => it.leads > 0).map(it =>
+    `<div class="card-row">
+      <span class="cl">${it.label}</span>
+      <span class="cr">${it.leads}人 ${it.zz > 0 ? '<span class="wd-zz">转正 '+it.zz+'</span>' : ''}</span>
+    </div>`
+  ).join('');
+  document.getElementById('cardHotZz').textContent = h.totalZz;
+
+  // 卡3：索粉
+  const sf = cards.sufen;
+  document.getElementById('cardSfBadge').textContent = `${sf.total}人 (${sf.totalPct})`;
+  document.getElementById('cardSfRows').innerHTML =
+    `<div class="card-row">
+      <span class="cl">索粉 leads</span>
+      <span class="cr">${sf.total}人</span>
+    </div>
+    <div class="card-row">
+      <span class="cl">转正</span>
+      <span class="cr wd-zz">${sf.totalZz}人</span>
+    </div>`;
+  document.getElementById('cardSfNote').textContent = '* ' + sf.note;
+})();
+
+// ----- 课型拆分 -----
+(function() {
+  const ct = D.courseTypes;
+  let html = ct.map(c => {
+    const badge = c.name.includes('0元') ? 'badge-blue' : c.name.includes('低价') ? 'badge-amber' : c.name.includes('双科') ? 'badge-purple' : 'badge-gray';
+    return `<tr><td><span class="badge ${badge}">${c.name}</span></td>${numCell(c.count)}${numCell(c.pct)}${zzCell(c.zz)}</tr>`;
+  }).join('');
+  const totalCt = ct.reduce((a,c) => a + c.count, 0);
+  const totalZz = ct.reduce((a,c) => a + c.zz, 0);
+  html += `<tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>${totalCt}</strong></td><td class="num"><strong>100%</strong></td><td class="num wd-zz"><strong>${totalZz}</strong></td></tr>`;
+  document.getElementById('courseTypeBody').innerHTML = html;
+})();
+
+// ----- 学科分布 -----
+(function() {
+  let html = D.subjects.map(s =>
+    `<tr><td>${s.name}</td>${numCell(s.count)}${numCell(s.pct)}${zzCell(s.zz)}</tr>`
+  ).join('');
+  const totalS = D.subjects.reduce((a,s) => a + s.count, 0);
+  const totalZz = D.subjects.reduce((a,s) => a + s.zz, 0);
+  html += `<tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>${totalS}</strong></td><td class="num"><strong>100%</strong></td><td class="num wd-zz"><strong>${totalZz}</strong></td></tr>`;
+  document.getElementById('subjectBody').innerHTML = html;
+})();
+
+// ----- 来源拆分 -----
+(function() {
+  const h = D.cumulativeCards.hot, sf = D.cumulativeCards.sufen;
+  document.getElementById('sourceBody').innerHTML =
+    `<tr><td><span class="badge badge-blue">热点析出</span></td>${numCell(h.total)}${numCell(h.totalPct)}${zzCell(h.totalZz)}</tr>
+    <tr><td><span class="badge badge-purple">索粉析出</span></td>${numCell(sf.total)}${numCell(sf.totalPct)}<td class="num">${sf.totalZz}</td></tr>
+    <tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>${h.total+sf.total}</strong></td><td class="num"><strong>100%</strong></td><td class="num wd-zz"><strong>${h.totalZz+sf.totalZz}</strong></td></tr>`;
+})();
+
+// ----- TOP热点来源 -----
+(function() {
+  document.getElementById('hotSourceBody').innerHTML = D.topSources.map((t,i) =>
+    `<tr><td>${i+1}</td><td>${t.name}</td>${numCell(t.count)}${zzCell(t.zz)}</tr>`
+  ).join('');
+})();
+
+// ----- TOP索粉来源 -----
+(function() {
+  document.getElementById('sufenSourceBody').innerHTML = D.sufenSources.map((t,i) =>
+    `<tr><td>${i+1}</td><td>${t.name}</td>${numCell(t.count)}${zzCell(t.zz)}</tr>`
+  ).join('');
+})();
+
+// ----- 资源位 -----
+(function() {
+  document.getElementById('resourceLabel').textContent =
+    `📚 ${D.meta.productName} 资源位（累计 ${D.summary.cumulative.jw} 人）`;
+  let html = D.resources.map(r =>
+    `<tr><td>${r.name}</td>${numCell(r.count)}${numCell(r.pct)}</tr>`
+  ).join('');
+  const totalR = D.resources.reduce((a,r) => a + r.count, 0);
+  html += `<tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>${totalR}</strong></td><td class="num"><strong>100%</strong></td></tr>`;
+  document.getElementById('resourceBody').innerHTML = html;
+})();
+
+// ----- 活码名称 -----
+(function() {
+  document.getElementById('qrNameBody').innerHTML = D.qrNames.map(q =>
+    `<tr><td>${q.name}</td>${numCell(q.count)}${numCell(q.pct)}</tr>`
+  ).join('');
+})();
+
+// ----- Chart.js -----
+(function() {
+  const ch = D.chart;
+  const ratesCapped = ch.lyRate.map(v => Math.min(v, 100));
+  const djRatesCapped = ch.djRate.map(v => Math.min(v, 100));
+
+  new Chart(document.getElementById('ddComboChart'), {
+    type: 'bar',
+    data: {
+      labels: ch.labels,
+      datasets: [
+        {
+          label: '加微数', type: 'bar',
+          data: ch.jw,
+          backgroundColor: 'rgba(190,24,93,0.7)',
+          borderRadius: 4, yAxisID: 'y', order: 2
+        },
+        {
+          label: '0元课领课率', type: 'line',
+          data: ratesCapped,
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37,99,235,0.04)',
+          fill: false, tension: 0.35, pointRadius: 4,
+          pointBackgroundColor: '#2563eb', pointBorderColor: '#fff', pointBorderWidth: 2,
+          yAxisID: 'y1', order: 1
+        },
+        {
+          label: '低价课领课率', type: 'line',
+          data: djRatesCapped,
+          borderColor: '#d97706',
+          backgroundColor: 'rgba(217,119,6,0.04)',
+          fill: false, tension: 0.35, pointRadius: 4,
+          pointBackgroundColor: '#d97706', pointBorderColor: '#fff', pointBorderWidth: 2,
+          borderDash: [5,3], yAxisID: 'y1', order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 20, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label === '加微数'
+              ? '加微: ' + ctx.raw.toLocaleString()
+              : ctx.dataset.label + ': ' + ctx.raw.toFixed(1) + '%'
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          type: 'linear', position: 'left',
+          title: { display: true, text: '加微数', font: { size: 11 }, color: '#64748b' },
+          beginAtZero: true, grid: { color: '#f1f5f9' }
+        },
+        y1: {
+          type: 'linear', position: 'right',
+          title: { display: true, text: '领课率', font: { size: 11 }, color: '#64748b' },
+          beginAtZero: true, max: 100,
+          grid: { drawOnChartArea: false },
+          ticks: { callback: v => v + '%' }
+        }
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>
