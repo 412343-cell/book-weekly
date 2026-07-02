@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{title}} 渠道周报</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f1f5f9;color:#1e293b;padding:24px;line-height:1.6;}
+  .container{max-width:1060px;margin:0 auto;}
+
+  /* === 对外截图区 === */
+  .ext-section{background:#fff;border-radius:12px;padding:28px 32px;border:2px solid #3b82f6;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .ext-title{font-size:20px;font-weight:700;color:#1e3a5f;margin-bottom:4px;}
+  .ext-subtitle{font-size:13px;color:#64748b;margin-bottom:20px;}
+  .ext-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;}
+  .ext-table th{background:#eff6ff;color:#1e40af;font-weight:600;padding:10px 12px;text-align:center;border-bottom:2px solid #bfdbfe;white-space:nowrap;}
+  .ext-table th.this-week{background:#fee2e2;color:#991b1b;border-bottom-color:#fca5a5;}
+  .ext-table th.last-week{background:#f1f5f9;color:#475569;border-bottom-color:#cbd5e1;}
+  .ext-table th:first-child,.ext-table td:first-child{text-align:left;}
+  .ext-table td{padding:9px 12px;text-align:center;border-bottom:1px solid #e2e8f0;}
+  .ext-table tr:last-child td{border-bottom:none;}
+  .ext-table .num{font-variant-numeric:tabular-nums;font-weight:500;}
+  .ext-table .up{color:#dc2626;font-weight:600;}
+  .ext-table .down{color:#16a34a;font-weight:600;}
+  .ext-table .flat{color:#94a3b8;}
+  .ext-table .rate-row td{background:#f8fafc;font-weight:600;}
+  .ext-table .rate-row td:first-child{color:#475569;}
+  .ext-table .cumulative{color:#1e293b;font-weight:600;}
+  .table-label{font-size:15px;font-weight:600;color:#334155;margin-bottom:8px;margin-top:4px;display:flex;align-items:center;gap:6px;}
+  .table-label::before{content:"";display:inline-block;width:3px;height:16px;background:#3b82f6;border-radius:2px;}
+
+  /* === 分隔线 === */
+  .divider{margin:32px 0;text-align:center;}
+  .divider span{display:inline-block;background:#cbd5e1;color:#64748b;font-size:12px;padding:4px 16px;border-radius:20px;letter-spacing:1px;}
+
+  /* === 对外按品并排 === */
+  .ext-two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px;}
+  .ext-col-title{font-size:14px;font-weight:600;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #e2e8f0;}
+  .ext-col-title.kt{color:#1e40af;border-bottom-color:#bfdbfe;}
+  .ext-col-title.qw{color:#92400e;border-bottom-color:#fde68a;}
+  @media(max-width:900px){.ext-two-col{grid-template-columns:1fr;}}
+
+  /* === 内部详析 === */
+  .int-section{display:grid;gap:20px;}
+  .int-two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+  @media(max-width:960px){.int-two-col{grid-template-columns:1fr;}}
+  table.int-table{width:100%;border-collapse:collapse;font-size:13px;}
+  table.int-table th{background:#f8fafc;color:#475569;font-weight:600;padding:8px 10px;text-align:center;border-bottom:1px solid #e2e8f0;}
+  table.int-table th:first-child,table.int-table td:first-child{text-align:left;}
+  table.int-table td{padding:7px 10px;text-align:center;border-bottom:1px solid #f1f5f9;}
+  table.int-table .num{font-variant-numeric:tabular-nums;}
+
+  .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500;}
+  .badge-blue{background:#dbeafe;color:#1e40af;}
+  .badge-amber{background:#fef3c7;color:#92400e;}
+  .badge-green{background:#dcfce7;color:#166534;}
+  .badge-purple{background:#f3e8ff;color:#7e22ce;}
+  .pin-section{margin-bottom:24px;}
+  .pin-bar{font-size:15px;font-weight:700;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:8px;}
+  .pin-bar.kantu{background:linear-gradient(135deg,#dbeafe,#eff6ff);color:#1e40af;}
+  .pin-bar.quwei{background:linear-gradient(135deg,#fef3c7,#fef9c3);color:#92400e;}
+  .pin-bar .pin-total{font-size:12px;font-weight:400;opacity:0.7;margin-left:auto;}
+  .pin-body{background:#fff;border-radius:0 0 10px 10px;padding:16px 20px;box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+  .triple-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:14px;}
+  .triple-grid > div{background:#f8fafc;border-radius:8px;padding:12px 14px;}
+  .mini-label{font-size:12px;color:#64748b;font-weight:600;margin-bottom:6px;}
+  .chart-wrap-combo{position:relative;height:200px;margin-bottom:16px;}
+  .wd-zz{color:#7c3aed;font-weight:700;}
+  .wd-rate{color:#15803d;font-weight:600;}
+  .wd-rate-header{color:#15803d;}
+  .wd-rate-dim{color:#94a3b8;}
+  .wd-course-header{color:#475569;border-bottom:2px solid #e2e8f0;}
+  .wd-source-header{color:#475569;border-bottom:2px solid #e2e8f0;}
+  .wd-jw-header{color:#1e40af;}
+
+  .month-table-wrap{margin-top:18px;}
+  .month-table-wrap .mini-label{margin-bottom:6px;}
+
+  .cumul-card{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:8px;padding:14px 18px;margin-top:14px;}
+  .cumul-card .cumul-title{font-size:13px;font-weight:600;color:#475569;margin-bottom:10px;}
+  .cumul-row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;}
+  .cumul-item{flex:1;min-width:200px;font-size:13px;line-height:1.8;}
+  .cumul-item .ci-label{color:#64748b;font-size:12px;}
+  .cumul-item .ci-val{font-weight:600;}
+  .cumul-item .ci-sub{color:#64748b;font-size:12px;margin-left:4px;}
+
+  .int-table thead.grouped th{background:#f8fafc;color:#475569;border-bottom:2px solid #e2e8f0;}
+  .int-table thead.grouped th.group-left{border-left:2px solid #e2e8f0;}
+  .int-table thead.grouped th.group-right{border-right:2px solid #e2e8f0;}
+  .int-table tbody td.group-left{border-left:2px solid #e2e8f0;}
+  .int-table tbody td.group-right{border-right:2px solid #e2e8f0;}
+  .int-table tbody td.wd-zz{color:#7c3aed;font-weight:700;}
+  .int-table .summary-row td{background:#f1f5f9;font-weight:600;color:#334155;}
+  .int-table .summary-row td.wd-zz{color:#7c3aed;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ==================== 对外截图区 ==================== -->
+  <div class="ext-section">
+    <div class="ext-title">{{title}} 渠道数据周报</div>
+    <div class="ext-subtitle">本周 {{this_label}} ｜ 上周 {{last_label}} ｜ 数据截止 {{cutoff}}</div>
+
+    <!-- 表1: 整体汇总 -->
+    <div class="table-label">整体汇总</div>
+    <table class="ext-table">
+      <thead>
+        <tr><th>指标</th><th class="this-week">本周</th><th class="last-week">上周</th><th>环比</th><th>累计</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>加微数</td><td class="num">{{t_jw}}</td><td class="num">{{t_jw_l}}</td><td class="{{t_jw_hb_c}}">{{t_jw_hb}}</td><td class="num cumulative">{{c_jw}}</td></tr>
+        <tr><td>leads 领课人次</td><td class="num">{{t_ld}}</td><td class="num">{{t_ld_l}}</td><td class="{{t_ld_hb_c}}">{{t_ld_hb}}</td><td class="num cumulative">{{c_ld}}</td></tr>
+        <tr><td>结课人次</td><td class="num">{{t_jk}}</td><td class="num">{{t_jk_l}}</td><td class="{{t_jk_hb_c}}">{{t_jk_hb}}</td><td class="num cumulative">{{c_jk}}</td></tr>
+        <tr><td>转正人次</td><td class="num">{{t_zz}}</td><td class="num">{{t_zz_l}}</td><td class="{{t_zz_hb_c}}">{{t_zz_hb}}</td><td class="num cumulative">{{c_zz}}</td></tr>
+        <tr class="rate-row"><td>领课率</td><td class="num">{{t_lk}}</td><td class="num">{{t_lk_l}}</td><td class="{{t_lk_hb_c}}">{{t_lk_hb}}</td><td class="cumulative">{{c_lk}}</td></tr>
+        <tr class="rate-row"><td>结课转正率</td><td class="num">{{t_jz}}</td><td class="num">{{t_jz_l}}</td><td class="{{t_jz_hb_c}}">{{t_jz_hb}}</td><td class="cumulative">{{c_jz}}</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 表2: 按品拆分（仅多品） -->
+    {{pin_outer_section}}
+  </div>
+
+  <!-- ==================== 分隔线 ==================== -->
+  <div class="divider"><span>以下为内部详析</span></div>
+
+  <!-- ==================== 内部详析区 ==================== -->
+  {{pin_inner_section}}
+
+  <!-- 活码资源位分布（按品） -->
+  <div class="pin-section">
+    <div class="pin-bar" style="background:#eef2ff;color:#4338ca;">📊 活码资源位分布<span class="pin-total" style="background:#dbeafe;color:#4338ca;">用户从哪里扫码进来的</span></div>
+    <div class="pin-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        {{pin_res_tables}}
+      </div>
+      {{pin_grade_table}}
+      {{pin_subject_table}}
+    </div>
+  </div>
+
+  <!-- 按月拆分（对内） -->
+  <div class="pin-section">
+    <div class="pin-bar" style="background:#f0fdf4;color:#166534;">📅 按月拆分（整体累计）</div>
+    <div class="pin-body">
+      <div class="mini-label">📊 近3月加微及领课趋势</div>
+      <table class="int-table" style="margin-bottom:12px;">
+        <thead><tr><th>月份</th><th class="num wd-jw-header">加微</th><th class="num">leads</th><th class="num wd-rate-header">领课率</th><th class="num">结课</th><th class="num wd-zz">转正</th><th class="num wd-rate-header">转正率</th></tr></thead>
+        <tbody>{{pin_month_rows}}</tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+{{chart_scripts}}
+</script>
+</body>
+</html>

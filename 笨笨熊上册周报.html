@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>笨笨熊上册（蓝鲸） 渠道周报</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f1f5f9;color:#1e293b;padding:24px;line-height:1.6;}
+  .container{max-width:1060px;margin:0 auto;}
+
+  /* === 对外截图区 === */
+  .ext-section{background:#fff;border-radius:12px;padding:28px 32px;border:2px solid #3b82f6;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .ext-title{font-size:20px;font-weight:700;color:#1e3a5f;margin-bottom:4px;}
+  .ext-subtitle{font-size:13px;color:#64748b;margin-bottom:20px;}
+  .ext-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;}
+  .ext-table th{background:#eff6ff;color:#1e40af;font-weight:600;padding:10px 12px;text-align:center;border-bottom:2px solid #bfdbfe;white-space:nowrap;}
+  .ext-table th.this-week{background:#fee2e2;color:#991b1b;border-bottom-color:#fca5a5;}
+  .ext-table th.last-week{background:#f1f5f9;color:#475569;border-bottom-color:#cbd5e1;}
+  .ext-table th:first-child,.ext-table td:first-child{text-align:left;}
+  .ext-table td{padding:9px 12px;text-align:center;border-bottom:1px solid #e2e8f0;}
+  .ext-table tr:last-child td{border-bottom:none;}
+  .ext-table .num{font-variant-numeric:tabular-nums;font-weight:500;}
+  .ext-table .up{color:#dc2626;font-weight:600;}
+  .ext-table .down{color:#16a34a;font-weight:600;}
+  .ext-table .flat{color:#94a3b8;}
+  .ext-table .rate-row td{background:#f8fafc;font-weight:600;}
+  .ext-table .rate-row td:first-child{color:#475569;}
+  .ext-table .cumulative{color:#1e293b;font-weight:600;}
+  .table-label{font-size:15px;font-weight:600;color:#334155;margin-bottom:8px;margin-top:4px;display:flex;align-items:center;gap:6px;}
+  .table-label::before{content:"";display:inline-block;width:3px;height:16px;background:#3b82f6;border-radius:2px;}
+
+  /* === 分隔线 === */
+  .divider{margin:32px 0;text-align:center;}
+  .divider span{display:inline-block;background:#cbd5e1;color:#64748b;font-size:12px;padding:4px 16px;border-radius:20px;letter-spacing:1px;}
+
+  /* === 对外按品并排 === */
+  .ext-two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px;}
+  .ext-col-title{font-size:14px;font-weight:600;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #e2e8f0;}
+  .ext-col-title.kt{color:#1e40af;border-bottom-color:#bfdbfe;}
+  .ext-col-title.qw{color:#92400e;border-bottom-color:#fde68a;}
+  @media(max-width:900px){.ext-two-col{grid-template-columns:1fr;}}
+
+  /* === 内部详析 === */
+  .int-section{display:grid;gap:20px;}
+  .int-two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+  @media(max-width:960px){.int-two-col{grid-template-columns:1fr;}}
+  table.int-table{width:100%;border-collapse:collapse;font-size:13px;}
+  table.int-table th{background:#f8fafc;color:#475569;font-weight:600;padding:8px 10px;text-align:center;border-bottom:1px solid #e2e8f0;}
+  table.int-table th:first-child,table.int-table td:first-child{text-align:left;}
+  table.int-table td{padding:7px 10px;text-align:center;border-bottom:1px solid #f1f5f9;}
+  table.int-table .num{font-variant-numeric:tabular-nums;}
+
+  .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500;}
+  .badge-blue{background:#dbeafe;color:#1e40af;}
+  .badge-amber{background:#fef3c7;color:#92400e;}
+  .badge-green{background:#dcfce7;color:#166534;}
+  .badge-purple{background:#f3e8ff;color:#7e22ce;}
+  .pin-section{margin-bottom:24px;}
+  .pin-bar{font-size:15px;font-weight:700;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:8px;}
+  .pin-bar.kantu{background:linear-gradient(135deg,#dbeafe,#eff6ff);color:#1e40af;}
+  .pin-bar.quwei{background:linear-gradient(135deg,#fef3c7,#fef9c3);color:#92400e;}
+  .pin-bar .pin-total{font-size:12px;font-weight:400;opacity:0.7;margin-left:auto;}
+  .pin-body{background:#fff;border-radius:0 0 10px 10px;padding:16px 20px;box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+  .triple-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:14px;}
+  .triple-grid > div{background:#f8fafc;border-radius:8px;padding:12px 14px;}
+  .mini-label{font-size:12px;color:#64748b;font-weight:600;margin-bottom:6px;}
+  .chart-wrap-combo{position:relative;height:200px;margin-bottom:16px;}
+  .wd-zz{color:#7c3aed;font-weight:700;}
+  .wd-rate{color:#15803d;font-weight:600;}
+  .wd-rate-header{color:#15803d;}
+  .wd-rate-dim{color:#94a3b8;}
+  .wd-course-header{color:#475569;border-bottom:2px solid #e2e8f0;}
+  .wd-source-header{color:#475569;border-bottom:2px solid #e2e8f0;}
+  .wd-jw-header{color:#1e40af;}
+
+  .month-table-wrap{margin-top:18px;}
+  .month-table-wrap .mini-label{margin-bottom:6px;}
+
+  .cumul-card{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:8px;padding:14px 18px;margin-top:14px;}
+  .cumul-card .cumul-title{font-size:13px;font-weight:600;color:#475569;margin-bottom:10px;}
+  .cumul-row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;}
+  .cumul-item{flex:1;min-width:200px;font-size:13px;line-height:1.8;}
+  .cumul-item .ci-label{color:#64748b;font-size:12px;}
+  .cumul-item .ci-val{font-weight:600;}
+  .cumul-item .ci-sub{color:#64748b;font-size:12px;margin-left:4px;}
+
+  .int-table thead.grouped th{background:#f8fafc;color:#475569;border-bottom:2px solid #e2e8f0;}
+  .int-table thead.grouped th.group-left{border-left:2px solid #e2e8f0;}
+  .int-table thead.grouped th.group-right{border-right:2px solid #e2e8f0;}
+  .int-table tbody td.group-left{border-left:2px solid #e2e8f0;}
+  .int-table tbody td.group-right{border-right:2px solid #e2e8f0;}
+  .int-table tbody td.wd-zz{color:#7c3aed;font-weight:700;}
+  .int-table .summary-row td{background:#f1f5f9;font-weight:600;color:#334155;}
+  .int-table .summary-row td.wd-zz{color:#7c3aed;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ==================== 对外截图区 ==================== -->
+  <div class="ext-section">
+    <div class="ext-title">笨笨熊上册（蓝鲸） 渠道数据周报</div>
+    <div class="ext-subtitle">本周 06/22-06/28 ｜ 上周 06/15-06/21 ｜ 数据截止 2026-06-30</div>
+
+    <!-- 表1: 整体汇总 -->
+    <div class="table-label">整体汇总</div>
+    <table class="ext-table">
+      <thead>
+        <tr><th>指标</th><th class="this-week">本周</th><th class="last-week">上周</th><th>环比</th><th>累计</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>加微数</td><td class="num">198</td><td class="num">53</td><td class="up">↑273.6%</td><td class="num cumulative">428</td></tr>
+        <tr><td>leads 领课人次</td><td class="num">9</td><td class="num">0</td><td class="flat">--</td><td class="num cumulative">17</td></tr>
+        <tr><td>结课人次</td><td class="num">1</td><td class="num">0</td><td class="flat">--</td><td class="num cumulative">1</td></tr>
+        <tr><td>转正人次</td><td class="num">0</td><td class="num">0</td><td class="flat">--</td><td class="num cumulative">0</td></tr>
+        <tr class="rate-row"><td>领课率</td><td class="num">4.5%</td><td class="num">0.0%</td><td class="flat">--</td><td class="cumulative">4.0%</td></tr>
+        <tr class="rate-row"><td>结课转正率</td><td class="num">0.0%</td><td class="num">0.0%</td><td class="flat">--</td><td class="cumulative">0.0%</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 表2: 按品拆分（仅多品） -->
+    
+  </div>
+
+  <!-- ==================== 分隔线 ==================== -->
+  <div class="divider"><span>以下为内部详析</span></div>
+
+  <!-- ==================== 内部详析区 ==================== -->
+  <div class="int-section">
+  <div class="pin-section">
+    <div class="pin-bar kantu">📖 快乐读书吧-上册<span class="pin-total">累计 17 leads ｜ 转正 0 人</span></div>
+    <div class="pin-body">
+      
+      <div class="mini-label">📅 近5周周明细（按价位拆分）</div>
+      <table class="int-table" style="margin-bottom:14px;">
+        <thead class="grouped"><tr>
+          <th>周</th>
+          <th class="num wd-jw-header">加微</th>
+          <th class="num wd-course-header">0元leads</th>
+          <th class="num wd-rate-header">0元率</th>
+          <th class="num wd-zz group-right">0元转正</th>
+          <th class="num wd-course-header group-left">低价leads</th>
+          <th class="num wd-rate-header">低价率</th>
+          <th class="num wd-zz">低价转正</th>
+        </tr></thead>
+        <tbody><tr><td>06/01-06/07</td><td class="num">17</td><td class="num">0</td><td class="num wd-rate">0.0%</td><td class="num wd-zz group-right">0</td><td class="num group-left">0</td><td class="num wd-rate-dim">0.0%</td><td class="num wd-zz">0</td></tr>
+<tr><td>06/08-06/14</td><td class="num">28</td><td class="num">1</td><td class="num wd-rate">3.6%</td><td class="num wd-zz group-right">0</td><td class="num group-left">0</td><td class="num wd-rate-dim">0.0%</td><td class="num wd-zz">0</td></tr>
+<tr><td>06/15-06/21</td><td class="num">53</td><td class="num">0</td><td class="num wd-rate">0.0%</td><td class="num wd-zz group-right">0</td><td class="num group-left">0</td><td class="num wd-rate-dim">0.0%</td><td class="num wd-zz">0</td></tr>
+<tr><td>06/22-06/28</td><td class="num">199</td><td class="num">8</td><td class="num wd-rate">4.0%</td><td class="num wd-zz group-right">0</td><td class="num group-left">1</td><td class="num wd-rate-dim">0.5%</td><td class="num wd-zz">0</td></tr>
+<tr><td>06/29-07/05</td><td class="num">117</td><td class="num">7</td><td class="num wd-rate">6.0%</td><td class="num wd-zz group-right">0</td><td class="num group-left">0</td><td class="num wd-rate-dim">0.0%</td><td class="num wd-zz">0</td></tr>
+<tr class="summary-row"><td><strong>5周合计</strong></td><td class="num"><strong>414</strong></td><td class="num"><strong>16</strong></td><td class="num wd-rate"><strong>3.9%</strong></td><td class="num wd-zz group-right"><strong>0</strong></td><td class="num group-left"><strong>1</strong></td><td class="num wd-rate-dim"><strong>0.2%</strong></td><td class="num wd-zz"><strong>0</strong></td></tr></tbody>
+      </table>
+      <div class="chart-wrap-combo"><canvas id="pin0Chart"></canvas></div>
+
+
+      <div class="cumul-card">
+        <div class="cumul-title">📊 累计结构一览（截止 2026/06/30）</div>
+        <div class="cumul-row">
+          <div class="cumul-item">
+            <div class="ci-label">📖 加微 → leads 漏斗</div>
+            <div>加微 <span class="ci-val">431</span> 人</div>
+            <div>├ 热点析出 <span class="ci-val">16</span> 人 <span class="ci-sub">（转正 0 人 / --）</span></div>
+            <div>└ 索粉析出 <span class="ci-val">1</span> 人 <span class="ci-sub">（转正 0 人 / 0.0%）</span></div>
+          </div>
+          <div class="cumul-item">
+            <div class="ci-label">🔍 来源结构</div>
+            <div>热点析出 <span class="ci-val">16</span> <span class="ci-sub">（94.1%，转正 0）</span></div>
+            <div>索粉析出 <span class="ci-val">1</span> <span class="ci-sub">（5.9%，转正 0）</span></div>
+          </div>
+          <div class="cumul-item">
+            <div class="ci-label">💡 关键发现</div>
+            <div style="font-size:12px;color:#475569;">
+              • 累计17条leads，转正0人<br>• 热点析出16条(94.1%)，索粉析出1条(5.9%)<br>• 0元转正率-- vs 低价转正率0.0%
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="triple-grid">
+        <div>
+          <div class="mini-label">课型拆分</div>
+          <table class="int-table">
+            <thead><tr><th>课型</th><th class="num">人次</th><th class="num">占比</th><th class="num wd-zz">转正</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-blue">0元爆品课（热点）</span></td><td class="num">16</td><td class="num">94.1%</td><td class="num wd-zz">0</td></tr><tr><td><span class="badge badge-amber">低价爆品课（索粉）</span></td><td class="num">1</td><td class="num">5.9%</td><td class="num wd-zz">0</td></tr><tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>17</strong></td><td class="num"><strong>100%</strong></td><td class="num wd-zz"><strong>0</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div class="mini-label">来源拆分</div>
+          <table class="int-table">
+            <thead><tr><th>来源</th><th class="num">人次</th><th class="num">占比</th><th class="num wd-zz">转正</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-blue">热点析出</span></td><td class="num">16</td><td class="num">94.1%</td><td class="num wd-zz">0</td></tr><tr><td><span class="badge badge-amber">索粉析出</span></td><td class="num">1</td><td class="num">5.9%</td><td class="num wd-zz">0</td></tr><tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>17</strong></td><td class="num"><strong>100%</strong></td><td class="num wd-zz"><strong>0</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mini-label">TOP 热点来源（热点名称）</div>
+      <table class="int-table">
+        <thead><tr><th>#</th><th>热点名称</th><th class="num">leads</th><th class="num wd-zz">转正</th></tr></thead>
+        <tbody><tr><td>1</td><td>快乐读书吧-上册</td><td class="num">16</td><td class="num wd-zz">0</td></tr></tbody>
+      </table>
+
+      <div class="mini-label" style="margin-top:14px;">TOP 索粉来源（计划名称）</div>
+      <table class="int-table">
+        <thead><tr><th>#</th><th>计划名称</th><th class="num">leads</th><th class="num wd-zz">转正</th></tr></thead>
+        <tbody><tr><td>1</td><td>站内资源位</td><td class="num">1</td><td class="num wd-zz">0</td></tr></tbody>
+      </table>
+    </div>
+  </div></div>
+
+  <!-- 活码资源位分布（按品） -->
+  <div class="pin-section">
+    <div class="pin-bar" style="background:#eef2ff;color:#4338ca;">📊 活码资源位分布<span class="pin-total" style="background:#dbeafe;color:#4338ca;">用户从哪里扫码进来的</span></div>
+    <div class="pin-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div><div class="mini-label">📖 快乐读书吧-上册（累计 17 leads）</div><table class="int-table"><thead><tr><th>资源位</th><th class="num">加微人数</th><th class="num">占比</th></tr></thead><tbody><tr><td>内页音频</td><td class="num">264</td><td class="num">61.3%</td></tr>
+<tr><td>答案</td><td class="num">68</td><td class="num">15.8%</td></tr>
+<tr><td>内页视频</td><td class="num">61</td><td class="num">14.2%</td></tr>
+<tr><td>封底</td><td class="num">32</td><td class="num">7.4%</td></tr>
+<tr><td>封二</td><td class="num">6</td><td class="num">1.4%</td></tr>
+<tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>431</strong></td><td class="num"><strong>100%</strong></td></tr></tbody></table></div>
+      </div>
+      <div class="mini-label" style="margin-top:14px;">📚 年级拆分（加微维度）</div><div style="display:grid;grid-template-columns:1fr;gap:20px;"><div><div style="font-size:12px;color:#64748b;margin-bottom:4px;">快乐读书吧-上册</div><table class="int-table"><thead><tr><th>年级</th><th class="num">加微数</th><th class="num">占比</th></tr></thead><tbody><tr><td>二年级</td><td class="num">250</td><td class="num">58.0%</td></tr>
+<tr><td>四年级</td><td class="num">114</td><td class="num">26.5%</td></tr>
+<tr><td>六年级</td><td class="num">25</td><td class="num">5.8%</td></tr>
+<tr><td>三年级</td><td class="num">24</td><td class="num">5.6%</td></tr>
+<tr><td>五年级</td><td class="num">18</td><td class="num">4.2%</td></tr></tbody></table></div></div>
+      
+    </div>
+  </div>
+
+  <!-- 按月拆分（对内） -->
+  <div class="pin-section">
+    <div class="pin-bar" style="background:#f0fdf4;color:#166534;">📅 按月拆分（整体累计）</div>
+    <div class="pin-body">
+      <div class="mini-label">📊 近3月加微及领课趋势</div>
+      <table class="int-table" style="margin-bottom:12px;">
+        <thead><tr><th>月份</th><th class="num wd-jw-header">加微</th><th class="num">leads</th><th class="num wd-rate-header">领课率</th><th class="num">结课</th><th class="num wd-zz">转正</th><th class="num wd-rate-header">转正率</th></tr></thead>
+        <tbody><tr><td>06月</td><td class="num">412</td><td class="num">17</td><td class="num wd-rate">4.1%</td><td class="num">1</td><td class="num wd-zz">0</td><td class="num wd-rate">0.00%</td></tr>
+<tr><td>05月</td><td class="num">14</td><td class="num">0</td><td class="num wd-rate">0.0%</td><td class="num">0</td><td class="num wd-zz">0</td><td class="num wd-rate">0.00%</td></tr>
+<tr><td>04月</td><td class="num">1</td><td class="num">0</td><td class="num wd-rate">0.0%</td><td class="num">0</td><td class="num wd-zz">0</td><td class="num wd-rate">0.00%</td></tr>
+<tr><td>02月</td><td class="num">2</td><td class="num">0</td><td class="num wd-rate">0.0%</td><td class="num">0</td><td class="num wd-zz">0</td><td class="num wd-rate">0.00%</td></tr>
+<tr><td>01月</td><td class="num">1</td><td class="num">0</td><td class="num wd-rate">0.0%</td><td class="num">0</td><td class="num wd-zz">0</td><td class="num wd-rate">0.00%</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+// 快乐读书吧-上册
+(function() {
+  var ctx = document.getElementById('pin0Chart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['06/01', '06/08', '06/15', '06/22', '06/29'],
+      datasets: [
+        {
+          label: '加微数',
+          type: 'bar',
+          data: [17, 28, 53, 199, 117],
+          backgroundColor: 'rgba(59,130,246,0.7)',
+          borderRadius: 4,
+          yAxisID: 'y',
+          order: 2
+        },
+        {
+          label: '0元领课率',
+          type: 'line',
+          data: [0.0, 3.57, 0.0, 4.02, 5.98],
+          borderColor: '#2563eb',
+          fill: false,
+          tension: 0.35,
+          pointRadius: 4,
+          pointBackgroundColor: '#2563eb',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          yAxisID: 'y1',
+          order: 1
+        },
+        {
+          label: '低价领课率',
+          type: 'line',
+          data: [0.0, 0.0, 0.0, 0.5, 0.0],
+          borderColor: '#d97706',
+          fill: false,
+          tension: 0.35,
+          pointRadius: 4,
+          pointBackgroundColor: '#d97706',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          borderDash: [5,3],
+          yAxisID: 'y1',
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 20, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label === '加微数' ? '加微: ' + ctx.raw.toLocaleString() : ctx.dataset.label + ': ' + ctx.raw.toFixed(1) + '%' } }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { type: 'linear', position: 'left', title: { display: true, text: '加微数', font: { size: 11 }, color: '#64748b' }, beginAtZero: true, grid: { color: '#f1f5f9' } },
+        y1: { type: 'linear', position: 'right', title: { display: true, text: '领课率', font: { size: 11 }, color: '#64748b' }, beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { callback: v => v + '%' } }
+      }
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
