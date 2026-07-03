@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from datetime import datetime, timedelta
 
-EXCEL = "D:/Desktop/0630.xlsx"
+EXCEL = "D:/Desktop/截止0702数据.xlsx"
 WEEK_N = 5
 TEMPLATE = "channel_template.html"
 
@@ -182,11 +182,11 @@ def generate_channel(ch_key):
     print(f"生成: {cfg['title']}")
 
     # ========== 读取数据 ==========
-    df_total = pd.read_excel(EXCEL, sheet_name='分渠道总数据')
+    df_total = pd.read_excel(EXCEL, sheet_name='分渠道总数居')
     df_week = pd.read_excel(EXCEL, sheet_name='分渠道周数据')
     df_month = pd.read_excel(EXCEL, sheet_name='分渠道月数据')
-    df_leads = pd.read_excel(EXCEL, sheet_name='leads明细')
-    df_hm = pd.read_excel(EXCEL, sheet_name='活码加微明细1')
+    df_leads = pd.read_excel(EXCEL, sheet_name='leads析出总表')
+    df_hm = pd.read_excel(EXCEL, sheet_name='活码加微表')
 
     # 字段反转
     df_leads['结课人次'] = df_leads['leads转正人次']
@@ -235,7 +235,7 @@ def generate_channel(ch_key):
     repl['title'] = cfg['title']
     repl['this_label'] = this_label
     repl['last_label'] = last_label
-    repl['cutoff'] = '2026-06-30'
+    repl['cutoff'] = '2026-07-02'
 
     for k, (c, p) in [('jw', (tw['加微'], lw['加微'])),
                         ('ld', (tw['leads'], lw['leads'])),
@@ -572,15 +572,11 @@ def generate_channel(ch_key):
     for pi, pin_cfg in enumerate(cfg['pins']):
         d_pin = pins_data[pi]
         hm_pin = pin_cfg.get('hm_filter', lambda df: df.iloc[:0])(df_hm)
-        hm_pin_clean = hm_pin[hm_pin['资源位'].notna() & (hm_pin['资源位'] != 0) & (hm_pin['资源位'] != '0')]
-        pin_jw = safe_int(hm_pin_clean['当日加微人数(包含删除好友)'].sum())
+        # 新版活码加微表无「资源位」列，直接用 hm_pin，资源位列表置空
+        pin_jw = safe_int(hm_pin['当日加微人数(包含删除好友)'].sum())
 
-        # 资源位
-        res_g = hm_pin_clean.groupby('资源位')['当日加微人数(包含删除好友)'].sum().sort_values(ascending=False)
+        # 资源位（新版无此列，保留空行）
         r_rows = []
-        for n, v in res_g.items():
-            r_rows.append(f"<tr><td>{n}</td><td class=\"num\">{num(safe_int(v))}</td><td class=\"num\">{pct_f1(safe_int(v), pin_jw)}</td></tr>")
-        r_rows.append(f"<tr style=\"background:#f8fafc;\"><td><strong>合计</strong></td><td class=\"num\"><strong>{num(pin_jw)}</strong></td><td class=\"num\"><strong>100%</strong></td></tr>")
         d_pin['res_rows'] = '\n'.join(r_rows)
 
         # 年级
@@ -594,16 +590,35 @@ def generate_channel(ch_key):
                 g_rows.append(f"<tr><td>{n}</td><td class=\"num\">{num(safe_int(v))}</td><td class=\"num\">{pct_f1(safe_int(v), pin_jw)}</td></tr>")
             d_pin['gd_rows'] = '\n'.join(g_rows) if g_rows else ''
 
-        # 学科
+        # 学科（基于 leads学科 + 转正人次，反映转正用户来自哪个学科）
         pin_need_subject = pin_cfg.get('need_subject', cfg.get('need_subject', False))
         if pin_need_subject:
-            hm_sj = hm_pin.copy()
-            hm_sj['学科分类'] = hm_sj['活码名称'].apply(extract_subject)
-            hm_sj = hm_sj[hm_sj['学科分类'] != '未知']
-            sj_g = hm_sj.groupby('学科分类')['当日加微人数(包含删除好友)'].sum().sort_values(ascending=False)
+            # 热点部分
+            if 'hot_units' in pin_cfg:
+                sj_hot = df_leads[(df_leads['leads计划名称'] == cfg['hot_plan']) &
+                                  (df_leads['leads单元名称'].isin(pin_cfg['hot_units']))]
+            elif 'hot_unit_include' in pin_cfg:
+                sj_hot = df_leads[df_leads['leads计划名称'] == cfg['hot_plan']]
+                m = pd.Series(False, index=sj_hot.index)
+                for inc in pin_cfg['hot_unit_include']:
+                    m = m | sj_hot['leads单元名称'].str.contains(inc, na=False)
+                if 'hot_units_exclude' in cfg:
+                    for exc in cfg['hot_units_exclude']:
+                        m = m & ~sj_hot['leads单元名称'].str.contains(exc, na=False)
+                sj_hot = sj_hot[m]
+            else:
+                sj_hot = df_leads.iloc[:0]
+            # 索粉部分
+            sf_spus = pin_cfg.get('sf_spus', [])
+            sj_sf = df_leads[df_leads['leads图书SPU名称'].isin(sf_spus)] if sf_spus else pd.DataFrame(columns=df_leads.columns)
+            sj_df = pd.concat([sj_hot, sj_sf], ignore_index=True)
+            sj_g = sj_df.groupby('leads学科')['转正人次'].sum().sort_values(ascending=False)
+            total_zz = sj_g.sum()
             s_rows = []
             for n, v in sj_g.items():
-                s_rows.append(f"<tr><td>{n}</td><td class=\"num\">{num(safe_int(v))}</td><td class=\"num\">{pct_f1(safe_int(v), pin_jw)}</td></tr>")
+                if safe_int(v) > 0:
+                    s_rows.append(f"<tr><td>{n}</td><td class=\"num\">{safe_int(v)}</td>"
+                                  f"<td class=\"num\">{pct_f1(safe_int(v), total_zz)}</td></tr>")
             d_pin['sj_rows'] = '\n'.join(s_rows) if s_rows else ''
 
     # ========== 渲染HTML ==========
@@ -715,12 +730,13 @@ def generate_channel(ch_key):
         inner_parts = []
         for pi, d in enumerate(pins_data):
             pin_cfg = cfg['pins'][pi]
+            # 每个品各自生成专属月度表（修复：旧版所有品共用渠道级别月度表）
+            pin_month_rows = build_month_rows(pin_cfg, cfg['sheet_key'])
             # 同步作文降级为月度
-            if is_multi and pi == 1 and ch_key == 'hanzhijian':
-                m_rows = build_month_rows(pin_cfg, cfg['sheet_key'])
-                inner_parts.append(build_pin_section(d, True, show_weekly=False, month_rows=m_rows, channel_month_rows=month_rows_str))
+            if pi == 1 and ch_key == 'hanzhijian':
+                inner_parts.append(build_pin_section(d, True, show_weekly=False, month_rows=pin_month_rows, channel_month_rows=pin_month_rows))
             else:
-                inner_parts.append(build_pin_section(d, True, show_weekly=True, channel_month_rows=month_rows_str))
+                inner_parts.append(build_pin_section(d, True, show_weekly=True, channel_month_rows=pin_month_rows))
         inner_html = '<div class="int-two-col">' + '\n'.join(inner_parts) + '</div>'
     else:
         inner_html = '<div class="int-section">' + build_pin_section(pins_data[0], False, show_weekly=True, channel_month_rows=month_rows_str) + '</div>'
@@ -754,11 +770,11 @@ def generate_channel(ch_key):
         if pin_need_subject and d['sj_rows']:
             sj_html_parts.append(
                 f"<div><div style=\"font-size:12px;color:#64748b;margin-bottom:4px;\">{d['name']}</div>"
-                f"<table class=\"int-table\"><thead><tr><th>学科</th><th class=\"num\">加微数</th><th class=\"num\">占比</th></tr></thead>"
+                f"<table class=\"int-table\"><thead><tr><th>学科</th><th class=\"num\">转正数</th><th class=\"num\">占比</th></tr></thead>"
                 f"<tbody>{d['sj_rows']}</tbody></table></div>"
             )
     if sj_html_parts:
-        sj_html = f"<div class=\"mini-label\" style=\"margin-top:14px;\">📐 学科拆分（加微维度）</div><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:20px;\">"
+        sj_html = f"<div class=\"mini-label\" style=\"margin-top:14px;\">📐 学科拆分（转正维度）</div><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:20px;\">"
         sj_html += '\n'.join(sj_html_parts)
         sj_html += '</div>'
         html = html.replace('{{pin_subject_table}}', sj_html)
@@ -821,7 +837,7 @@ def build_pin_section(d, is_multi, show_weekly=True, month_rows='', channel_mont
       {weekly_section}
 
       <div class="cumul-card">
-        <div class="cumul-title">📊 累计结构一览（截止 2026/06/30）</div>
+        <div class="cumul-title">📊 累计结构一览（截止 2026/07/02）</div>
         <div class="cumul-row">
           <div class="cumul-item">
             <div class="ci-label">📖 加微 → leads 漏斗</div>
