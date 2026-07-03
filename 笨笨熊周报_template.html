@@ -90,7 +90,7 @@
 
   <div class="ext-section">
     <div class="ext-title">笨笨熊（下册）渠道数据周报</div>
-    <div class="ext-subtitle">本周 06/24-06/30 ｜ 上周 06/17-06/23 ｜ 数据截止 2026-06-30</div>
+    <div class="ext-subtitle">本周 {{this_week_label}} ｜ 上周 {{last_week_label}} ｜ 数据截止 {{cutoff}}</div>
 
     <div class="table-label">整体汇总</div>
     <table class="ext-table">
@@ -98,59 +98,18 @@
         <tr><th>指标</th><th class="this-week">本周</th><th class="last-week">上周</th><th>环比</th><th>累计</th></tr>
       </thead>
       <tbody>
-        <tr><td>加微数</td><td class="num">405</td><td class="num">356</td><td class="up">&uarr; 13.8%</td><td class="num cumulative">59,427</td></tr>
-        <tr><td>leads 领课人次</td><td class="num">37</td><td class="num">46</td><td class="down">&darr; 19.6%</td><td class="num cumulative">6,358</td></tr>
-        <tr><td>结课人次</td><td class="num">13</td><td class="num">46</td><td class="flat">--</td><td class="num cumulative">6,317</td></tr>
-        <tr><td>转正人次</td><td class="num">0</td><td class="num">0</td><td class="flat">--</td><td class="num cumulative">47</td></tr>
-        <tr class="rate-row"><td>领课率</td><td class="num">9.1%</td><td class="num">12.9%</td><td class="down">&darr; 29.3%</td><td class="cumulative">10.7%</td></tr>
-        <tr class="rate-row"><td>结课转正率</td><td class="num">0.0%</td><td class="num">0.0%</td><td class="flat">--</td><td class="cumulative">0.7%</td></tr>
+        <tr><td>加微数</td><td class="num">{{this_jw}}</td><td class="num">{{last_jw}}</td><td class="{{jw_hb_class}}">{{jw_hb}}</td><td class="num cumulative">{{cum_jw}}</td></tr>
+        <tr><td>leads 领课人次</td><td class="num">{{this_leads}}</td><td class="num">{{last_leads}}</td><td class="{{leads_hb_class}}">{{leads_hb}}</td><td class="num cumulative">{{cum_leads}}</td></tr>
+        <tr><td>结课人次</td><td class="num">{{this_jk}}</td><td class="num">{{last_jk}}</td><td class="flat">--</td><td class="num cumulative">{{cum_jk}}</td></tr>
+        <tr><td>转正人次</td><td class="num">{{this_zz}}</td><td class="num">{{last_zz}}</td><td class="{{zz_hb_class}}">{{zz_hb}}</td><td class="num cumulative">{{cum_zz}}</td></tr>
+        <tr class="rate-row"><td>领课率</td><td class="num">{{this_lk}}</td><td class="num">{{last_lk}}</td><td class="{{lk_hb_class}}">{{lk_hb}}</td><td class="cumulative">{{cum_lk}}</td></tr>
+        <tr class="rate-row"><td>结课转正率</td><td class="num">{{this_jkzz}}</td><td class="num">{{last_jkzz}}</td><td class="{{jkzz_hb_class}}">{{jkzz_hb}}</td><td class="cumulative">{{cum_jkzz}}</td></tr>
       </tbody>
     </table>
 
     <div class="table-label">按版本拆分（三味版 / 公版薄版 / 蓝鲸版）</div>
     <div class="ext-three-col">
-      <div>
-    <div class="ext-col-title sw">📖 三味版</div>
-    <table class="ext-table">
-      <thead><tr><th>指标</th><th>累计</th></tr></thead>
-      <tbody>
-        <tr><td>leads 领课人次</td><td class="num">1,026</td></tr>
-        <tr><td>结课人次</td><td class="num">1,023</td></tr>
-        <tr><td>转正人次</td><td class="num" style="color:#7c3aed;font-weight:700;">2</td></tr>
-        <tr class="rate-row"><td>领课率</td><td class="cumulative">1.73%</td></tr>
-        <tr class="rate-row"><td>结课转正率</td><td class="cumulative">0.20%</td></tr>
-        <tr><td style="color:#64748b;font-size:11px;">热点 / 索粉</td><td class="num" style="font-size:12px;">845 / 181</td></tr>
-      </tbody>
-    </table>
-  </div>
-<div>
-    <div class="ext-col-title gb">📘 公版薄版</div>
-    <table class="ext-table">
-      <thead><tr><th>指标</th><th>累计</th></tr></thead>
-      <tbody>
-        <tr><td>leads 领课人次</td><td class="num">2,621</td></tr>
-        <tr><td>结课人次</td><td class="num">2,596</td></tr>
-        <tr><td>转正人次</td><td class="num" style="color:#7c3aed;font-weight:700;">27</td></tr>
-        <tr class="rate-row"><td>领课率</td><td class="cumulative">4.41%</td></tr>
-        <tr class="rate-row"><td>结课转正率</td><td class="cumulative">1.04%</td></tr>
-        <tr><td style="color:#64748b;font-size:11px;">热点 / 索粉</td><td class="num" style="font-size:12px;">1,373 / 1,248</td></tr>
-      </tbody>
-    </table>
-  </div>
-<div>
-    <div class="ext-col-title lj">🐋 蓝鲸版</div>
-    <table class="ext-table">
-      <thead><tr><th>指标</th><th>累计</th></tr></thead>
-      <tbody>
-        <tr><td>leads 领课人次</td><td class="num">2,711</td></tr>
-        <tr><td>结课人次</td><td class="num">2,698</td></tr>
-        <tr><td>转正人次</td><td class="num" style="color:#7c3aed;font-weight:700;">18</td></tr>
-        <tr class="rate-row"><td>领课率</td><td class="cumulative">4.56%</td></tr>
-        <tr class="rate-row"><td>结课转正率</td><td class="cumulative">0.67%</td></tr>
-        <tr><td style="color:#64748b;font-size:11px;">热点 / 索粉</td><td class="num" style="font-size:12px;">2,394 / 317</td></tr>
-      </tbody>
-    </table>
-  </div>
+      {{version_tables}}
     </div>
     <div class="footnote">* 版本仅在 leads 维度可拆分（热点按单元名、索粉按SPU名）；加微按整体统计，不拆版本。</div>
   </div>
@@ -159,60 +118,51 @@
 
   <div class="int-section">
     <div class="pin-section">
-      <div class="pin-bar kantu">📖 笨笨熊（下册）<span class="pin-total">累计 6,358 leads ｜ 转正 47 人</span></div>
+      <div class="pin-bar kantu">📖 笨笨熊（下册）<span class="pin-total">累计 {{cum_leads}} leads ｜ 转正 {{cum_zz}} 人</span></div>
       <div class="pin-body">
 
-        <div class="mini-label">📅 近5周周明细（按价位拆分）</div>
+        <div class="mini-label">📅 近{{week_count}}周周明细（按价位拆分）</div>
         <table class="int-table" style="margin-bottom:14px;">
           <thead class="grouped">
             <tr><th>周</th><th class="num wd-jw-header">加微</th><th class="num wd-course-header">0元leads</th><th class="num wd-rate-header group-right">0元率</th><th class="num wd-course-header group-left">低价leads</th><th class="num wd-rate-header">低价率</th><th class="num wd-zz">转正</th></tr>
           </thead>
           <tbody>
-            <tr><td>06/01-06/07</td><td class="num">402</td><td class="num">42</td><td class="num wd-rate group-right">10.4%</td><td class="num group-left">6</td><td class="num wd-rate-dim">1.5%</td><td class="num wd-zz">8</td></tr>
-<tr><td>06/08-06/14</td><td class="num">453</td><td class="num">29</td><td class="num wd-rate group-right">6.4%</td><td class="num group-left">2</td><td class="num wd-rate-dim">0.4%</td><td class="num wd-zz">2</td></tr>
-<tr><td>06/15-06/21</td><td class="num">356</td><td class="num">39</td><td class="num wd-rate group-right">11.0%</td><td class="num group-left">7</td><td class="num wd-rate-dim">2.0%</td><td class="num wd-zz">0</td></tr>
-<tr><td>06/22-06/28</td><td class="num">405</td><td class="num">30</td><td class="num wd-rate group-right">7.4%</td><td class="num group-left">7</td><td class="num wd-rate-dim">1.7%</td><td class="num wd-zz">0</td></tr>
-<tr><td>06/29-07/05</td><td class="num">125</td><td class="num">10</td><td class="num wd-rate group-right">8.0%</td><td class="num group-left">5</td><td class="num wd-rate-dim">4.0%</td><td class="num wd-zz">0</td></tr>
-<tr class="summary-row"><td><strong>5周合计</strong></td><td class="num"><strong>1,741</strong></td><td class="num"><strong>150</strong></td><td class="num wd-rate group-right"><strong>8.6%</strong></td><td class="num group-left"><strong>27</strong></td><td class="num wd-rate-dim"><strong>1.6%</strong></td><td class="num wd-zz"><strong>10</strong></td></tr>
+            {{week_rows}}
           </tbody>
         </table>
 
         <div class="chart-wrap-combo"><canvas id="bbxComboChart"></canvas></div>
 
         <div class="month-table-wrap">
-          <div class="mini-label">📆 近5周明细（06/01-06/07 ~ 06/29-07/05，按价位拆分）</div>
+          <div class="mini-label">📆 近{{week5_count}}周明细（{{this_5w_label}}，按价位拆分）</div>
           <table class="int-table">
             <thead class="grouped">
               <tr><th>周</th><th class="num">加微</th><th class="num wd-course-header">0元leads</th><th class="num wd-rate-header">0元率</th><th class="num wd-zz group-right">0元转正</th><th class="num wd-course-header group-left">低价leads</th><th class="num wd-rate-header">低价率</th><th class="num wd-zz">低价转正</th></tr>
             </thead>
             <tbody>
-              <tr><td>06/01-06/07</td><td class="num">402</td><td class="num">42</td><td class="num wd-rate">10.4%</td><td class="num wd-zz group-right">8</td><td class="num group-left">6</td><td class="num wd-rate-dim">1.5%</td><td class="num wd-zz">0</td></tr>
-<tr><td>06/08-06/14</td><td class="num">453</td><td class="num">29</td><td class="num wd-rate">6.4%</td><td class="num wd-zz group-right">2</td><td class="num group-left">2</td><td class="num wd-rate-dim">0.4%</td><td class="num wd-zz">0</td></tr>
-<tr><td>06/15-06/21</td><td class="num">356</td><td class="num">39</td><td class="num wd-rate">11.0%</td><td class="num wd-zz group-right">0</td><td class="num group-left">7</td><td class="num wd-rate-dim">2.0%</td><td class="num wd-zz">0</td></tr>
-<tr><td>06/22-06/28</td><td class="num">405</td><td class="num">30</td><td class="num wd-rate">7.4%</td><td class="num wd-zz group-right">0</td><td class="num group-left">7</td><td class="num wd-rate-dim">1.7%</td><td class="num wd-zz">0</td></tr>
-<tr><td>06/29-07/05</td><td class="num">125</td><td class="num">10</td><td class="num wd-rate">8.0%</td><td class="num wd-zz group-right">0</td><td class="num group-left">5</td><td class="num wd-rate-dim">4.0%</td><td class="num wd-zz">0</td></tr>
+              {{week5_rows}}
             </tbody>
           </table>
         </div>
 
         <div class="cumul-card">
-          <div class="cumul-title">📊 累计结构一览（截止 2026-06-30）</div>
+          <div class="cumul-title">📊 累计结构一览（截止 {{cutoff}}）</div>
           <div class="cumul-row">
             <div class="cumul-item">
               <div class="ci-label">📖 加微 → leads 漏斗</div>
-              <div>加微 <span class="ci-val">59,427</span> 人</div>
-              <div>├ 0元课 <span class="ci-val">4,089</span> 人 <span class="ci-sub">（率 6.88%，转正 38 人 / 0.93%）</span></div>
-              <div>└ 低价课 <span class="ci-val">2,259</span> 人 <span class="ci-sub">（率 3.80%，转正 9 人 / 0.40%）</span></div>
+              <div>加微 <span class="ci-val">{{cum_jw}}</span> 人</div>
+              <div>├ 0元课 <span class="ci-val">{{cum_0_leads}}</span> 人 <span class="ci-sub">（率 {{cum_0_rate}}，转正 {{cum_0_zz}} 人 / {{cum_0_zz_rate}}）</span></div>
+              <div>└ 低价课 <span class="ci-val">{{cum_1_leads}}</span> 人 <span class="ci-sub">（率 {{cum_1_rate}}，转正 {{cum_1_zz}} 人 / {{cum_1_zz_rate}}）</span></div>
             </div>
             <div class="cumul-item">
               <div class="ci-label">🔍 来源结构</div>
-              <div>热点析出 <span class="ci-val">4,612</span> <span class="ci-sub">（72.5%，转正 16）</span></div>
-              <div>索粉析出 <span class="ci-val">1,746</span> <span class="ci-sub">（27.5%，转正 31）</span></div>
+              <div>热点析出 <span class="ci-val">{{hot_leads}}</span> <span class="ci-sub">（{{hot_pct}}，转正 {{hot_zz}}）</span></div>
+              <div>索粉析出 <span class="ci-val">{{sf_leads}}</span> <span class="ci-sub">（{{sf_pct}}，转正 {{sf_zz}}）</span></div>
             </div>
             <div class="cumul-item">
               <div class="ci-label">💡 关键发现</div>
               <div style="font-size:12px;color:#475569;">
-                • 累计6,358条leads，转正47人<br>• 三味版转正2人、公版薄版27人、蓝鲸版18人<br>• 0元课转正率（0.93%）vs 低价课转正率（0.40%）
+                {{key_findings}}
               </div>
             </div>
           </div>
@@ -224,11 +174,7 @@
             <table class="int-table">
               <thead><tr><th>版本</th><th class="num">leads</th><th class="num">占比</th><th class="num wd-zz">转正</th></tr></thead>
               <tbody>
-                <tr><td><span class="badge badge-blue">三味版</span></td><td class="num">1,026</td><td class="num">16.1%</td><td class="num wd-zz">2</td></tr>
-<tr><td><span class="badge badge-amber">公版薄版</span></td><td class="num">2,621</td><td class="num">41.2%</td><td class="num wd-zz">27</td></tr>
-<tr><td><span class="badge badge-purple">蓝鲸版</span></td><td class="num">2,711</td><td class="num">42.6%</td><td class="num wd-zz">18</td></tr>
-<tr><td>未分版热点</td><td class="num">0</td><td class="num">0.0%</td><td class="num wd-zz">0</td></tr>
-<tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>6,358</strong></td><td class="num"><strong>100%</strong></td><td class="num wd-zz"><strong>47</strong></td></tr>
+                {{version_rows}}
               </tbody>
             </table>
           </div>
@@ -237,9 +183,7 @@
             <table class="int-table">
               <thead><tr><th>课型</th><th class="num">人次</th><th class="num">占比</th><th class="num wd-zz">转正</th></tr></thead>
               <tbody>
-                <tr><td><span class="badge badge-blue">0元爆品课</span></td><td class="num">4,089</td><td class="num">64.3%</td><td class="num wd-zz">38</td></tr>
-<tr><td><span class="badge badge-amber">低价爆品课</span></td><td class="num">2,259</td><td class="num">35.5%</td><td class="num wd-zz">9</td></tr>
-<tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>6,358</strong></td><td class="num"><strong>100%</strong></td><td class="num wd-zz"><strong>47</strong></td></tr>
+                {{course_rows}}
               </tbody>
             </table>
           </div>
@@ -248,9 +192,7 @@
             <table class="int-table">
               <thead><tr><th>来源</th><th class="num">人次</th><th class="num">占比</th><th class="num wd-zz">转正</th></tr></thead>
               <tbody>
-                <tr><td><span class="badge badge-blue">热点析出</span></td><td class="num">4,612</td><td class="num">72.5%</td><td class="num wd-zz">16</td></tr>
-<tr><td><span class="badge badge-amber">索粉析出</span></td><td class="num">1,746</td><td class="num">27.5%</td><td class="num wd-zz">31</td></tr>
-<tr style="background:#f8fafc;"><td><strong>合计</strong></td><td class="num"><strong>6,358</strong></td><td class="num"><strong>100%</strong></td><td class="num wd-zz"><strong>47</strong></td></tr>
+                {{source_rows}}
               </tbody>
             </table>
           </div>
@@ -260,16 +202,7 @@
         <table class="int-table">
           <thead><tr><th>#</th><th>热点名称</th><th class="num">leads</th><th class="num wd-zz">转正</th></tr></thead>
           <tbody>
-            <tr><td>1</td><td>笨笨熊普通版兜底链接</td><td class="num">866</td><td class="num wd-zz">4</td></tr>
-<tr><td>2</td><td>笨笨熊公版-企微sop析出新</td><td class="num">657</td><td class="num wd-zz">0</td></tr>
-<tr><td>3</td><td>笨笨熊公版0.1元阅读</td><td class="num">397</td><td class="num wd-zz">1</td></tr>
-<tr><td>4</td><td>笨笨熊蓝鲸兜底链接</td><td class="num">312</td><td class="num wd-zz">0</td></tr>
-<tr><td>5</td><td>《快乐读书吧》二年级下册-自研图书小程序</td><td class="num">299</td><td class="num wd-zz">1</td></tr>
-<tr><td>6</td><td>笨笨熊三味兜底热点</td><td class="num">276</td><td class="num wd-zz">0</td></tr>
-<tr><td>7</td><td>笨笨熊蓝鲸-企微sop析出</td><td class="num">248</td><td class="num wd-zz">1</td></tr>
-<tr><td>8</td><td>《愿望的实现》-自研图书小程序</td><td class="num">157</td><td class="num wd-zz">0</td></tr>
-<tr><td>9</td><td>笨笨熊三味-企微sop析出</td><td class="num">145</td><td class="num wd-zz">1</td></tr>
-<tr><td>10</td><td>笨笨熊《中国古代寓言故事》</td><td class="num">113</td><td class="num wd-zz">0</td></tr>
+            {{top_hot_rows}}
           </tbody>
         </table>
 
@@ -277,16 +210,7 @@
         <table class="int-table">
           <thead><tr><th>#</th><th>计划名称</th><th class="num">leads</th><th class="num wd-zz">转正</th></tr></thead>
           <tbody>
-            <tr><td>1</td><td>站内资源位</td><td class="num">679</td><td class="num wd-zz">19</td></tr>
-<tr><td>2</td><td>【图书私域存量-内容】</td><td class="num">662</td><td class="num wd-zz">9</td></tr>
-<tr><td>3</td><td>图书小程序</td><td class="num">150</td><td class="num wd-zz">0</td></tr>
-<tr><td>4</td><td>小程序用户激活图书sop下发领课</td><td class="num">75</td><td class="num wd-zz">1</td></tr>
-<tr><td>5</td><td>小程序资源位</td><td class="num">52</td><td class="num wd-zz">0</td></tr>
-<tr><td>6</td><td>【图书私域存量-领课】</td><td class="num">34</td><td class="num wd-zz">1</td></tr>
-<tr><td>7</td><td>微信场私信</td><td class="num">14</td><td class="num wd-zz">0</td></tr>
-<tr><td>8</td><td>特训班小程序首页</td><td class="num">13</td><td class="num wd-zz">0</td></tr>
-<tr><td>9</td><td>集团图书-小程序</td><td class="num">10</td><td class="num wd-zz">0</td></tr>
-<tr><td>10</td><td>【图书自研小程序】</td><td class="num">8</td><td class="num wd-zz">0</td></tr>
+            {{top_sf_rows}}
           </tbody>
         </table>
 
@@ -294,13 +218,7 @@
         <table class="int-table">
           <thead><tr><th>资源位</th><th class="num">加微数</th><th class="num">占比</th></tr></thead>
           <tbody>
-            <tr><td>内页音频</td><td class="num">41,328</td><td class="num">69.5%</td></tr>
-<tr><td>内页视频</td><td class="num">5,398</td><td class="num">9.1%</td></tr>
-<tr><td>封底</td><td class="num">4,718</td><td class="num">7.9%</td></tr>
-<tr><td>开课卡</td><td class="num">3,170</td><td class="num">5.3%</td></tr>
-<tr><td>封二</td><td class="num">2,867</td><td class="num">4.8%</td></tr>
-<tr><td>规划页</td><td class="num">1,367</td><td class="num">2.3%</td></tr>
-<tr><td>答案</td><td class="num">1,312</td><td class="num">2.2%</td></tr>
+            {{res_rows}}
           </tbody>
         </table>
 
@@ -308,12 +226,7 @@
         <table class="int-table">
           <thead><tr><th>年级</th><th class="num">加微数</th><th class="num">占比</th></tr></thead>
           <tbody>
-            <tr><td>二年级</td><td class="num">22,807</td><td class="num">38.4%</td></tr>
-<tr><td>三年级</td><td class="num">18,726</td><td class="num">31.5%</td></tr>
-<tr><td>五年级</td><td class="num">5,943</td><td class="num">10.0%</td></tr>
-<tr><td>四年级</td><td class="num">4,880</td><td class="num">8.2%</td></tr>
-<tr><td>六年级</td><td class="num">4,695</td><td class="num">7.9%</td></tr>
-<tr><td>一年级</td><td class="num">3,171</td><td class="num">5.3%</td></tr>
+            {{gd_rows}}
           </tbody>
         </table>
 
@@ -324,10 +237,10 @@
 </div>
 
 <script>
-const WEEKS = ['06/01', '06/08', '06/15', '06/22', '06/29'];
-const JW_DATA = [402, 453, 356, 405, 125];
-const RATE0_DATA = [10.45, 6.4, 10.96, 7.41, 8.0];
-const RATE1_DATA = [1.49, 0.44, 1.97, 1.73, 4.0];
+const WEEKS = [{{chart_weeks}}];
+const JW_DATA = [{{chart_jw}}];
+const RATE0_DATA = [{{chart_rate0}}];
+const RATE1_DATA = [{{chart_rate1}}];
 
 new Chart(document.getElementById('bbxComboChart'), {
   type: 'bar',

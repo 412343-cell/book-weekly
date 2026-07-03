@@ -87,8 +87,7 @@ CHANNELS = {
         'hot_plan': '蓝鲸',
         'hot_units': ['快乐读书吧-上册'],
         'sf_spus_all': ['蓝鲸快乐读书吧上册'],
-        'hm_filter': lambda df: df[(df['图书'].str.contains('上册', na=False)) & 
-                                    (df['活码名称'].str.contains('笨笨熊', na=False))],
+        'hm_filter': lambda df: df[df['图书项目组'] == '笨笨熊蓝鲸-上册'],
         'need_grade': True,
         'need_subject': False,
         'hot_top_label': '热点名称',
@@ -96,8 +95,7 @@ CHANNELS = {
             'name': '快乐读书吧-上册',
             'hot_units': ['快乐读书吧-上册'],
             'sf_spus': ['蓝鲸快乐读书吧上册'],
-            'hm_filter': lambda df: df[(df['图书'].str.contains('上册', na=False)) & 
-                                        (df['活码名称'].str.contains('笨笨熊', na=False))],
+            'hm_filter': lambda df: df[df['图书项目组'] == '笨笨熊蓝鲸-上册'],
         }],
     },
     'yangguang': {
@@ -118,12 +116,14 @@ CHANNELS = {
                 'hot_units': ['阳光同学计算小达人'],
                 'sf_spus': ['阳光同学计算小达人上册'],
                 'hm_filter': lambda df: df[df['图书'].str.contains('计算小达人', na=False)],
+                'need_subject': False,
             },
             {
                 'name': '提优训练',
                 'hot_units': ['阳光同学提优训练'],
                 'sf_spus': ['阳光同学语文提优训练', '阳光同学数学提优训练', '阳光同学英语提优训练'],
                 'hm_filter': lambda df: df[df['图书'].str.contains('提优训练', na=False)],
+                'need_subject': True,
             },
         ],
     },
@@ -480,7 +480,7 @@ def generate_channel(ch_key):
 """)
 
         # ---- TOP热点/索粉 ----
-        hot_top = hot.groupby('leads单元名称').agg(
+        hot_top = hot.groupby('leads热点名称').agg(
             leads=('leads人次', 'sum'), zz=('转正人次', 'sum')
         ).sort_values('leads', ascending=False).head(10)
         top_hot_rows = []
@@ -595,7 +595,8 @@ def generate_channel(ch_key):
             d_pin['gd_rows'] = '\n'.join(g_rows) if g_rows else ''
 
         # 学科
-        if cfg['need_subject']:
+        pin_need_subject = pin_cfg.get('need_subject', cfg.get('need_subject', False))
+        if pin_need_subject:
             hm_sj = hm_pin.copy()
             hm_sj['学科分类'] = hm_sj['活码名称'].apply(extract_subject)
             hm_sj = hm_sj[hm_sj['学科分类'] != '未知']
@@ -681,56 +682,7 @@ def generate_channel(ch_key):
             )
         return '\n'.join(rows) if rows else '<tr><td colspan="7">暂无数据</td></tr>'
 
-    # 汉知简同步作文：第2个品（index=1）只显示月度
-    is_multi = len(cfg['pins']) > 1
-    if is_multi:
-        inner_parts = []
-        for pi, d in enumerate(pins_data):
-            pin_cfg = cfg['pins'][pi]
-            # 同步作文降级为月度
-            if is_multi and pi == 1 and ch_key == 'hanzhijian':
-                m_rows = build_month_rows(pin_cfg, cfg['sheet_key'])
-                inner_parts.append(build_pin_section(d, True, show_weekly=False, month_rows=m_rows))
-            else:
-                inner_parts.append(build_pin_section(d, True, show_weekly=True))
-        inner_html = '<div class="int-two-col">' + '\n'.join(inner_parts) + '</div>'
-    else:
-        inner_html = '<div class="int-section">' + build_pin_section(pins_data[0], False, show_weekly=True) + '</div>'
-    html = html.replace('{{pin_inner_section}}', inner_html)
-
-    # 资源位表
-    res_tables = []
-    for d in pins_data:
-        res_tables.append(
-            f"<div><div class=\"mini-label\">{d['icon']} {d['name']}（累计 {d['cum_ld']} leads）</div>"
-            f"<table class=\"int-table\"><thead><tr><th>资源位</th><th class=\"num\">加微人数</th><th class=\"num\">占比</th></tr></thead><tbody>{d['res_rows']}</tbody></table></div>"
-        )
-    html = html.replace('{{pin_res_tables}}', '\n'.join(res_tables))
-
-    # 年级表（第一个品的数据展示）
-    if cfg['need_grade'] and pins_data[0]['gd_rows']:
-        grade_html = f"<div class=\"mini-label\" style=\"margin-top:14px;\">📚 年级拆分（加微维度）</div><div style=\"display:grid;grid-template-columns:{'1fr 1fr' if is_multi else '1fr'};gap:20px;\">"
-        for d in pins_data:
-            if d['gd_rows']:
-                grade_html += f"<div><div style=\"font-size:12px;color:#64748b;margin-bottom:4px;\">{d['name']}</div><table class=\"int-table\"><thead><tr><th>年级</th><th class=\"num\">加微数</th><th class=\"num\">占比</th></tr></thead><tbody>{d['gd_rows']}</tbody></table></div>"
-        grade_html += '</div>'
-        html = html.replace('{{pin_grade_table}}', grade_html)
-    else:
-        html = html.replace('{{pin_grade_table}}', '')
-
-    # 学科表
-    if cfg['need_subject'] and pins_data[0]['sj_rows']:
-        sj_html = f"<div class=\"mini-label\" style=\"margin-top:14px;\">📐 学科拆分（加微维度）</div><div style=\"display:grid;grid-template-columns:{'1fr 1fr' if is_multi else '1fr'};gap:20px;\">"
-        for d in pins_data:
-            if d['sj_rows']:
-                sj_html += f"<div><div style=\"font-size:12px;color:#64748b;margin-bottom:4px;\">{d['name']}</div><table class=\"int-table\"><thead><tr><th>学科</th><th class=\"num\">加微数</th><th class=\"num\">占比</th></tr></thead><tbody>{d['sj_rows']}</tbody></table></div>"
-        sj_html += '</div>'
-        html = html.replace('{{pin_subject_table}}', sj_html)
-    else:
-        html = html.replace('{{pin_subject_table}}', '')
-
-    # 月度拆分（整体渠道级别，不按品）
-    # 按月从df_month聚合近3月数据
+    # ========== 月度拆分（整体渠道级别）提前计算，供 build_pin_section 使用 ==========
     df_leads['月份'] = df_leads['leads购课日期'].apply(
         lambda d: pd.Timestamp(d).strftime('%Y-%m') if pd.notna(d) else None
     )
@@ -756,7 +708,62 @@ def generate_channel(ch_key):
             f"<td class=\"num wd-rate\">{zz_r:.2f}%</td></tr>"
         )
     month_rows_str = '\n'.join(month_rows) if month_rows else '<tr><td colspan="7">暂无数据</td></tr>'
-    html = html.replace('{{pin_month_rows}}', month_rows_str)
+
+    # 汉知简同步作文：第2个品（index=1）只显示月度
+    is_multi = len(cfg['pins']) > 1
+    if is_multi:
+        inner_parts = []
+        for pi, d in enumerate(pins_data):
+            pin_cfg = cfg['pins'][pi]
+            # 同步作文降级为月度
+            if is_multi and pi == 1 and ch_key == 'hanzhijian':
+                m_rows = build_month_rows(pin_cfg, cfg['sheet_key'])
+                inner_parts.append(build_pin_section(d, True, show_weekly=False, month_rows=m_rows, channel_month_rows=month_rows_str))
+            else:
+                inner_parts.append(build_pin_section(d, True, show_weekly=True, channel_month_rows=month_rows_str))
+        inner_html = '<div class="int-two-col">' + '\n'.join(inner_parts) + '</div>'
+    else:
+        inner_html = '<div class="int-section">' + build_pin_section(pins_data[0], False, show_weekly=True, channel_month_rows=month_rows_str) + '</div>'
+    html = html.replace('{{pin_inner_section}}', inner_html)
+
+    # 资源位表
+    res_tables = []
+    for d in pins_data:
+        res_tables.append(
+            f"<div><div class=\"mini-label\">{d['icon']} {d['name']}（累计 {d['cum_ld']} leads）</div>"
+            f"<table class=\"int-table\"><thead><tr><th>资源位</th><th class=\"num\">加微人数</th><th class=\"num\">占比</th></tr></thead><tbody>{d['res_rows']}</tbody></table></div>"
+        )
+    html = html.replace('{{pin_res_tables}}', '\n'.join(res_tables))
+
+    # 年级表（第一个品的数据展示）
+    if cfg['need_grade'] and pins_data[0]['gd_rows']:
+        grade_html = f"<div class=\"mini-label\" style=\"margin-top:14px;\">📚 年级拆分（加微维度）</div><div style=\"display:grid;grid-template-columns:{'1fr 1fr' if is_multi else '1fr'};gap:20px;\">"
+        for d in pins_data:
+            if d['gd_rows']:
+                grade_html += f"<div><div style=\"font-size:12px;color:#64748b;margin-bottom:4px;\">{d['name']}</div><table class=\"int-table\"><thead><tr><th>年级</th><th class=\"num\">加微数</th><th class=\"num\">占比</th></tr></thead><tbody>{d['gd_rows']}</tbody></table></div>"
+        grade_html += '</div>'
+        html = html.replace('{{pin_grade_table}}', grade_html)
+    else:
+        html = html.replace('{{pin_grade_table}}', '')
+
+    # 学科表（per-pin控制：只有need_subject=True的品才展示）
+    sj_html_parts = []
+    for pi, d in enumerate(pins_data):
+        pin_cfg = cfg['pins'][pi]
+        pin_need_subject = pin_cfg.get('need_subject', cfg.get('need_subject', False))
+        if pin_need_subject and d['sj_rows']:
+            sj_html_parts.append(
+                f"<div><div style=\"font-size:12px;color:#64748b;margin-bottom:4px;\">{d['name']}</div>"
+                f"<table class=\"int-table\"><thead><tr><th>学科</th><th class=\"num\">加微数</th><th class=\"num\">占比</th></tr></thead>"
+                f"<tbody>{d['sj_rows']}</tbody></table></div>"
+            )
+    if sj_html_parts:
+        sj_html = f"<div class=\"mini-label\" style=\"margin-top:14px;\">📐 学科拆分（加微维度）</div><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:20px;\">"
+        sj_html += '\n'.join(sj_html_parts)
+        sj_html += '</div>'
+        html = html.replace('{{pin_subject_table}}', sj_html)
+    else:
+        html = html.replace('{{pin_subject_table}}', '')
 
     # Chart scripts
     html = html.replace('{{chart_scripts}}', '\n'.join(chart_scripts))
@@ -765,11 +772,22 @@ def generate_channel(ch_key):
     print(f"[OK] {cfg['output_html']} 已生成")
 
 
-def build_pin_section(d, is_multi, show_weekly=True, month_rows=''):
+def build_pin_section(d, is_multi, show_weekly=True, month_rows='', channel_month_rows=''):
     c = d['cumul']
     # 分隔线规则：group-right 在 0元转正，group-left 在 低价leads
     weekly_section = ''
     if show_weekly:
+        # 月度拆分放在chart下方
+        month_section = ''
+        if channel_month_rows:
+            month_section = f"""
+      <div class="month-table-wrap">
+        <div class="mini-label">📆 按月拆分（整体累计）</div>
+        <table class="int-table" style="margin-bottom:12px;">
+          <thead><tr><th>月份</th><th class="num wd-jw-header">加微</th><th class="num">leads</th><th class="num wd-rate-header">领课率</th><th class="num">结课</th><th class="num wd-zz">转正</th><th class="num wd-rate-header">转正率</th></tr></thead>
+          <tbody>{channel_month_rows}</tbody>
+        </table>
+      </div>"""
         weekly_section = f"""
       <div class="mini-label">📅 近{d['week_count']}周周明细（按价位拆分）</div>
       <table class="int-table" style="margin-bottom:14px;">
@@ -786,6 +804,7 @@ def build_pin_section(d, is_multi, show_weekly=True, month_rows=''):
         <tbody>{d['week_rows']}</tbody>
       </table>
       <div class="chart-wrap-combo"><canvas id="{d['chart_id']}"></canvas></div>
+      {month_section}
 """
     else:
         weekly_section = f"""
