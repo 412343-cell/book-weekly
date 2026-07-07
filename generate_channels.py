@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from datetime import datetime, timedelta
 
-EXCEL = "D:/Desktop/截止0702数据.xlsx"
+EXCEL = "D:/Desktop/0706.xlsx"
 WEEK_N = 5
 TEMPLATE = "channel_template.html"
 
@@ -182,11 +182,11 @@ def generate_channel(ch_key):
     print(f"生成: {cfg['title']}")
 
     # ========== 读取数据 ==========
-    df_total = pd.read_excel(EXCEL, sheet_name='分渠道总数居')
+    df_total = pd.read_excel(EXCEL, sheet_name='分渠道总数据')
     df_week = pd.read_excel(EXCEL, sheet_name='分渠道周数据')
     df_month = pd.read_excel(EXCEL, sheet_name='分渠道月数据')
-    df_leads = pd.read_excel(EXCEL, sheet_name='leads析出总表')
-    df_hm = pd.read_excel(EXCEL, sheet_name='活码加微表')
+    df_leads = pd.read_excel(EXCEL, sheet_name='leads明细')
+    df_hm = pd.read_excel(EXCEL, sheet_name='活码加微明细')
 
     # 字段反转
     df_leads['结课人次'] = df_leads['leads转正人次']

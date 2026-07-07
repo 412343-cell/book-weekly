@@ -1,7 +1,7 @@
 """
 生成笨笨熊下册周报数据 JSON 和 HTML
 用法: python generate_benbenxiong.py [Excel路径]
-默认: D:/Desktop/0630.xlsx
+默认: D:/Desktop/0706.xlsx
 输出: benbenxiong_data.json, 笨笨熊周报.html
 """
 import pandas as pd
@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 from datetime import datetime, timedelta
 
-EXCEL = sys.argv[1] if len(sys.argv) > 1 else "D:/Desktop/0630.xlsx"
+EXCEL = sys.argv[1] if len(sys.argv) > 1 else "D:/Desktop/0706.xlsx"
 OUTPUT_JSON = "benbenxiong_data.json"
 OUTPUT_HTML = "笨笨熊周报.html"
 TEMPLATE = "笨笨熊周报_template.html"
@@ -68,7 +68,7 @@ df_week = pd.read_excel(EXCEL, sheet_name='分渠道周数据')
 df_month = pd.read_excel(EXCEL, sheet_name='分渠道月数据')
 df_total = pd.read_excel(EXCEL, sheet_name='分渠道总数据')
 df_leads = pd.read_excel(EXCEL, sheet_name='leads明细')
-df_hm = pd.read_excel(EXCEL, sheet_name='活码加微明细1')
+df_hm = pd.read_excel(EXCEL, sheet_name='活码加微明细')
 
 # ===================== 整体数据 =====================
 total_row = df_total[df_total['渠道'] == '笨笨熊'].iloc[0]

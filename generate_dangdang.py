@@ -1,7 +1,7 @@
 """
 当当网渠道周报数据生成脚本
 用法：python generate_dangdang.py [Excel路径]
-默认：D:/Desktop/截止0702数据.xlsx
+默认：D:/Desktop/0706.xlsx
 输出：dangdang_data.js
 """
 import pandas as pd
@@ -12,13 +12,13 @@ from datetime import datetime, timedelta
 # ============================================================
 # 0. 参数
 # ============================================================
-EXCEL_PATH = sys.argv[1] if len(sys.argv) > 1 else 'D:/Desktop/截止0702数据.xlsx'
+EXCEL_PATH = sys.argv[1] if len(sys.argv) > 1 else 'D:/Desktop/0706.xlsx'
 
 # ============================================================
 # 1. 读取数据
 # ============================================================
-df_ld = pd.read_excel(EXCEL_PATH, sheet_name='leads析出总表')
-df_hm = pd.read_excel(EXCEL_PATH, sheet_name='活码加微表')
+df_ld = pd.read_excel(EXCEL_PATH, sheet_name='leads明细')
+df_hm = pd.read_excel(EXCEL_PATH, sheet_name='活码加微明细')
 
 # 日期列标准化
 df_ld['日期'] = pd.to_datetime(df_ld['leads购课日期'])
